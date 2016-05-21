@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "633246616673",
+    "project_id": "twominuteplays"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:633246616673:android:d1d1d7da93e3c41c",
+        "android_client_info": {
+          "package_name": "com.twominuteplays"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "633246616673-0vuisslq28sfqous735ahkge4a1p9dpt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.twominuteplays",
+            "certificate_hash": "C84C5EEF610884F16A5238F4D22DF418BDF8C896"
+          }
+        },
+        {
+          "client_id": "633246616673-r542muj45cg7bq96qa8cf7o74qa6q536.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCp09Eo-xv1c5QAULhC5gtTuCPNgnOztMg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

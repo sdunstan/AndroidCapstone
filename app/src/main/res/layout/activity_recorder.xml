@@ -1,0 +1,49 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0099cc"
+    tools:context="com.twominuteplays.RecorderActivity">
+
+    <FrameLayout
+        android:id="@+id/cameraFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DUMMY CURRENT LINE"
+            android:background="#64ffffff"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_margin="4dp"
+            android:id="@+id/currentLineTextView"
+            android:contentDescription="@string/current_line"
+            android:textSize="22sp" />
+
+        <Button android:id="@+id/playPauseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:text="@string/record"
+            android:contentDescription="@string/play_or_pause_toggle_button"
+            android:onClick="toggleRecordStop" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/recordImageView"
+            android:layout_gravity="center_horizontal|bottom"
+            android:src="@drawable/record"
+            android:layout_marginBottom="45dp"
+            android:contentDescription="@string/recoding_indicator" />
+    </FrameLayout>
+
+</FrameLayout>
