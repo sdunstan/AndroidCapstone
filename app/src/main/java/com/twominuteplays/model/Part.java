@@ -3,13 +3,12 @@ package com.twominuteplays.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.firebase.database.Exclude;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class Part implements Parcelable {
 
@@ -19,12 +18,11 @@ public class Part implements Parcelable {
     private final List<Line> lines;
     private final String actorUid;
 
-    @JsonCreator
-    private Part(@JsonProperty("id") String id,
-                 @JsonProperty("characterName") String characterName,
-                 @JsonProperty("description") String description,
-                 @JsonProperty("lines") List<Line> lines,
-                 @JsonProperty("actorUid") String actorUid) {
+    private Part(String id,
+                 String characterName,
+                 String description,
+                 List<Line> lines,
+                 String actorUid) {
         this.id = id;
         this.characterName = characterName;
         this.description = description;
@@ -103,7 +101,7 @@ public class Part implements Parcelable {
         return builder.build();
     }
 
-    @JsonIgnore
+    @Exclude
     public boolean isRecorded() {
         for (Line line : getLines()) {
             if (line.getRecordingPath() == null)
@@ -112,12 +110,39 @@ public class Part implements Parcelable {
         return true;
     }
 
+    @Exclude
+    public boolean isLastLine(Line line) {
+        boolean isLast = false;
+        if (lines != null && !lines.isEmpty() && line != null) {
+            Line lastLine = lines.get(lines.size()-1);
+            isLast = lastLine.getId().equals(line.getId());
+        }
+        return isLast;
+    }
+
     public static class Builder {
         public String id;
         public String characterName;
         public String description;
         public List<Line> lines;
         public String actorUid;
+
+        public Builder withJson(Map<String, Object> partMap) {
+            this.id = (String)partMap.get("id");
+            this.characterName = (String)partMap.get("characterName");
+            this.description = (String)partMap.get("description");
+            this.actorUid = (String)partMap.get("actorUid");
+            marshalLines(partMap);
+            return this;
+        }
+
+        private void marshalLines(Map<String, Object> partMap) {
+            for(Object lineObject : (Iterable)partMap.get("lines")) {
+                Map<String,Object> lineMap = (Map<String, Object>) lineObject;
+                addLine(new Line.Builder().withJson(lineMap).build());
+            }
+        }
+
 
         public Builder withId(String id) {
             this.id = id;
@@ -161,6 +186,7 @@ public class Part implements Parcelable {
             }
             return this;
         }
+
     }
 
 

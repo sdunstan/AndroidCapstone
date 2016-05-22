@@ -12,13 +12,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.twominuteplays.db.FirebaseStuff;
 import com.twominuteplays.model.Movie;
 import com.twominuteplays.model.Part;
+
+import java.util.Map;
 
 public class PlayViewActivity extends BaseActivity {
 
@@ -32,14 +34,14 @@ public class PlayViewActivity extends BaseActivity {
         super.onRestart();
         Log.i(TAG, "Restarting, attempting to refresh movie state.");
         if (movie != null) {
-            Firebase movieRef = FirebaseStuff.getMovieRef(movie.getId());
+            DatabaseReference movieRef = FirebaseStuff.getMovieRef(movie.getId());
             if (movieRef != null) {
                 loadMovie(movieRef);
             }
         }
     }
 
-    private void loadMovie(Firebase movieRef) {
+    private void loadMovie(DatabaseReference movieRef) {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Grabbing your movie...");
         progressDialog.setIndeterminate(true);
@@ -75,8 +77,10 @@ public class PlayViewActivity extends BaseActivity {
                 uid = path[1];
                 movieId = path[2];
             }
+            // TODO: lookup real UID from fake mapping passed in on uid parameter,
+            // as is this is only single user
             Log.i(TAG, "Grabbing movie for UID/movieID " + uid + " " + movieId);
-            Firebase movieRef = FirebaseStuff.getMovieRef(uid, movieId);
+            DatabaseReference movieRef = FirebaseStuff.getMovieRef(movieId);
             Log.i(TAG, "Getting movie for " + movieRef.toString());
 
             loadMovie(movieRef);
@@ -155,15 +159,16 @@ public class PlayViewActivity extends BaseActivity {
     private class LoadMovieEventListener implements ValueEventListener {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-            movie = dataSnapshot.getValue(Movie.class);
+            Map<String,Object> jsonSnapshot = (Map<String, Object>) dataSnapshot.getValue();
+            Movie.Builder builder = new Movie.Builder();
+            movie = builder.withJson(jsonSnapshot).build();
             Log.i(TAG, "Loaded movie from database. State is " + movie.getState());
             setViewFromMovie();
             dismissLoadingDialog();
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
-            // load movie from Firebase, when done, stop spinner
+        public void onCancelled(DatabaseError databaseError) {
             dismissLoadingDialog();
             // TODO: show an error an pop to the main view
         }

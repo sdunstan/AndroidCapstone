@@ -35,18 +35,24 @@
         <activity
             android:name=".ScriptPickerActivity"
             android:label="@string/title_activity_script_picker" />
-        <activity android:name=".PlayViewActivity"
+        <activity
+            android:name=".PlayViewActivity"
             android:label="Play View">
             <intent-filter
                 android:autoVerify="true"
                 android:label="Record your part in a Two Minute Plays movie.">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="twominuteplays" android:host="play" />
-                <data android:scheme="http"
+
+                <data
+                    android:host="play"
+                    android:scheme="twominuteplays" />
+                <data
                     android:host="2mp.tv"
-                    android:pathPrefix="/play" />
+                    android:pathPrefix="/play"
+                    android:scheme="http" />
             </intent-filter>
         </activity>
         <activity
@@ -54,25 +60,27 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_movie"
             android:screenOrientation="portrait"
-            android:theme="@style/FullscreenTheme">
-        </activity>
+            android:theme="@style/FullscreenTheme"></activity>
         <activity
             android:name=".RecorderActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_recorder"
             android:screenOrientation="portrait"
-            android:theme="@style/FullscreenTheme" >
-            <intent-filter
-                android:label="Record your part in a Two Minute Plays movie.">
+            android:theme="@style/FullscreenTheme">
+            <intent-filter android:label="Record your part in a Two Minute Plays movie.">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="twominuteplays"
-                    android:host="record" />
+
+                <data
+                    android:host="record"
+                    android:scheme="twominuteplays" />
             </intent-filter>
         </activity>
 
-        <service android:name=".video.MovieAssemblyService"/>
+        <service android:name=".video.MovieAssemblyService"
+            android:exported="false"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -80,11 +88,18 @@
 
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login"></activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+            android:label="@string/title_activity_login" />
+        <!--
+ ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <service
+            android:name=".video.ShareService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

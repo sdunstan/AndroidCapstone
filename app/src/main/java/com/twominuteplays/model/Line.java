@@ -7,8 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
 
 public class Line implements Parcelable {
 
@@ -19,11 +18,10 @@ public class Line implements Parcelable {
     private final String line;
     private final String recordingPath;
 
-    @JsonCreator
-    private Line(@JsonProperty("id") String id,
-                 @JsonProperty("sortOrder") Integer sortOrder,
-                 @JsonProperty("line") String line,
-                 @JsonProperty("recordingPath") String recordingPath) {
+    private Line(String id,
+                 Integer sortOrder,
+                 String line,
+                 String recordingPath) {
         this.id = id;
         this.sortOrder = sortOrder;
         this.line = line;
@@ -66,6 +64,14 @@ public class Line implements Parcelable {
         private String line;
         private String recordingPath;
 
+        public Builder withJson(Map<String, Object> partMap) {
+            this.id = (String)partMap.get("id");
+            this.sortOrder = ((Long)partMap.get("sortOrder")).intValue();
+            this.line = (String)partMap.get("line");
+            this.recordingPath = (String)partMap.get("recordingPath");
+            return this;
+        }
+
         public Builder withId(String id) {
             this.id = id;
             return this;
@@ -89,6 +95,7 @@ public class Line implements Parcelable {
         public Line build() {
             return new Line(id, sortOrder, line, recordingPath);
         }
+
     }
 
 

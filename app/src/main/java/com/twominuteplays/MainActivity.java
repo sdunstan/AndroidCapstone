@@ -17,8 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
+import com.twominuteplays.db.FirebaseStuff;
 import com.twominuteplays.firebase.ClickableMovieTemplateAdapter;
 import com.twominuteplays.model.Movie;
+import com.twominuteplays.video.ShareService;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -66,8 +68,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void postLoginCreate() {
-        String uid = mFirebaseRef.getAuth().getUid();
-        moviesAdapter = new ClickableMovieTemplateAdapter(mFirebaseRef.child("movies/" + uid));
+        moviesAdapter = new ClickableMovieTemplateAdapter(FirebaseStuff.getMoviesRef());
         recyclerView.setAdapter(moviesAdapter);
     }
 
@@ -106,7 +107,12 @@ public class MainActivity extends BaseActivity {
         if (movie == null)
             return;
         Log.i(TAG, "Clicked share for " + movie.getTitle());
-//        movie.shared();
+        ShareService.startActionShare(this, movie.getParts().get(0));
+        // shareMovie(movie);
+    }
+
+    private void shareMovie(Movie movie) {
+        //        movie.shared();
 
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
@@ -118,6 +124,7 @@ public class MainActivity extends BaseActivity {
         sharingIntent.putExtra(Intent.EXTRA_TEXT, shareText);
         sharingIntent.resolveActivity(getPackageManager());
         startActivity(Intent.createChooser(sharingIntent,"Share movie using"));
+
     }
 
 }

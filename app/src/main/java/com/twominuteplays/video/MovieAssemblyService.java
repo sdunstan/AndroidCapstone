@@ -6,15 +6,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.coremedia.iso.boxes.Container;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.InputStreamContent;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.storage.Storage;
-import com.google.api.services.storage.model.ObjectAccessControl;
-import com.google.api.services.storage.model.StorageObject;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
@@ -23,12 +14,9 @@ import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
 import com.twominuteplays.model.Line;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +24,7 @@ import java.util.Map;
 public class MovieAssemblyService extends IntentService {
 
     private static final String TAG = MovieAssemblyService.class.getName();
+    public static final String ASSEMBLE_MOVIE = "com.twominuteplays.video.action.ASSEMBLE_MOVIE";;
 
     public MovieAssemblyService() {
         super("Movie Assembler");
@@ -92,6 +81,7 @@ public class MovieAssemblyService extends IntentService {
     }
 
     // Suzanne sat patiently with me while I wrote this. She gets one share of stock as a reward.
+    /*
     private void saveToGCS(String token, File movieFile, long size) throws IOException, GeneralSecurityException {
         FileInputStream is = new FileInputStream(movieFile);
         InputStreamContent content = new InputStreamContent("video/mp4", is);
@@ -117,12 +107,13 @@ public class MovieAssemblyService extends IntentService {
                 .setApplicationName("Two Minute Plays")
                 .build();
     }
+    */
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if (!ASSEMBLE_MOVIE.equals(intent.getAction()))
+            return;
         com.twominuteplays.model.Movie movie = intent.getParcelableExtra("movie");
-        String token = intent.getStringExtra("token");
-
         List<Line> lines = movie.assembleLines();
         try {
             File outputFile = new File(getExternalFilesDir(Environment.DIRECTORY_MOVIES), "2mp-" + movie.getId() + ".mp4");
@@ -136,11 +127,8 @@ public class MovieAssemblyService extends IntentService {
 
             // TODO: cleanup
             // TODO: send to GCS (needs size)
-            saveToGCS(token, outputFile, size);
         } catch (IOException e) {
             Log.e(TAG, "Error creating movie file.", e);
-        } catch (GeneralSecurityException e) {
-            Log.e(TAG, "Error logging into GCS", e);
         }
     }
 }

@@ -6,13 +6,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.firebase.database.Exclude;
 import com.twominuteplays.db.FirebaseStuff;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public final class Movie implements Parcelable {
@@ -44,17 +44,16 @@ public final class Movie implements Parcelable {
                 }
             };
 
-    @JsonCreator
-    private Movie(@JsonProperty("id") String id,
-                  @JsonProperty("templateId") String templateId,
-                  @JsonProperty("state") MovieState movieState,
-                  @JsonProperty("title") String title,
-                  @JsonProperty("synopsis") String synopsis,
-                  @JsonProperty("author") String author,
-                  @JsonProperty("scriptMarkup") String scriptMarkup,
-                  @JsonProperty("imageUrl") String imageUrl,
-                  @JsonProperty("movieUrl") String movieUrl,
-                  @JsonProperty("parts") List<Part> parts) {
+    private Movie(String id,
+                  String templateId,
+                  MovieState movieState,
+                  String title,
+                  String synopsis,
+                  String author,
+                  String scriptMarkup,
+                  String imageUrl,
+                  String movieUrl,
+                  List<Part> parts) {
         this.id = id;
         this.templateId = templateId;
         this.state = movieState == null ? MovieState.TEMPLATE : movieState;
@@ -94,7 +93,10 @@ public final class Movie implements Parcelable {
 
     public String getTemplateId() { return templateId; }
 
+    @Exclude
     public MovieState getState() { return state; }
+
+    public String getMovieState() { return (state != null) ? state.toString() : null; }
 
     public String getTitle() {
         return title;
@@ -217,7 +219,7 @@ public final class Movie implements Parcelable {
 
     public Movie addVideo(String partId, String lineId, String videoUrl) {
         if (MovieState.RECORDING_STARTED != getState())
-            throw new IllegalStateException("Movie state must be PART SELECTED to add video.");
+            throw new IllegalStateException("Movie state must be RECORDING STARTED to add video.");
         Builder builder = new Builder();
         builder.withId(getId())
                 .withTemplateId(getTemplateId())
@@ -302,12 +304,36 @@ public final class Movie implements Parcelable {
         LocalBroadcastManager.getInstance(context).sendBroadcast(shareIntent);
     }
 
+    @Exclude
+    public boolean isRecorded() {
+        boolean recorded = true;
+        for (Part part : getParts()) {
+            recorded = part.isRecorded();
+            if (!recorded) break;
+        }
+        return recorded;
+    }
+
+    /**
+     * Movie is not sharable if both parts have started their recording process.
+     * @return
+     */
+    @Exclude
+    public boolean isSharable() {
+        // TODO: implement. State must be SHARED or RECORDED or MERGED
+        return true;
+    }
+
     public enum MovieState {
         TEMPLATE,
         SELECTED,
         PART_SELECTED,
         RECORDING_STARTED,
+        CONTRIBUTE, // like RECORDING_STARTED except for when I accept a share
         RECORDED,
+        CONTRIBUTED, // for when we detect someone has recorded their part
+        SINGLE_USER, // for when you choose to record all the parts yourself
+        SINGLE_USER_MERGED,
         SHARED,
         MERGED
     }
@@ -323,6 +349,36 @@ public final class Movie implements Parcelable {
         private String imageUrl;
         private List<Part> parts;
         private String movieUrl;
+
+        public Builder withJson(Map<String, Object> jsonSnapshot) {
+            this.id = (String)jsonSnapshot.get("id");
+            this.templateId = (String)jsonSnapshot.get("templateId");
+            this.movieState = marshalMovieState(jsonSnapshot.get("movieState"));
+            this.title = (String)jsonSnapshot.get("title");
+            this.synopsis = (String)jsonSnapshot.get("synopsis");
+            this.author = (String)jsonSnapshot.get("author");
+            this.scriptMarkup = (String)jsonSnapshot.get("scriptMarkup");
+            this.imageUrl = (String)jsonSnapshot.get("imageUrl");
+            this.movieUrl = (String)jsonSnapshot.get("movieUrl");
+            marshalParts(jsonSnapshot);
+
+            return this;
+        }
+
+        private void marshalParts(Map<String, Object> jsonSnapshot) {
+            for(Object partObject : (Iterable)jsonSnapshot.get("parts")) {
+                Map<String,Object> partMap = (Map<String, Object>) partObject;
+                addPart(new Part.Builder().withJson(partMap).build());
+            }
+        }
+
+        private MovieState marshalMovieState(Object movieState) {
+            MovieState movieStateEnum = null;
+            if (movieState != null) {
+                movieStateEnum = MovieState.valueOf((String) movieState);
+            }
+            return movieStateEnum;
+        }
 
         public Builder withId(String id) {
             this.id = id;
@@ -391,6 +447,7 @@ public final class Movie implements Parcelable {
             this.movieUrl = movieUrl;
             return this;
         }
+
     }
 
 

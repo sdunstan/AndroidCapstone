@@ -1,7 +1,9 @@
 {
   "project_info": {
     "project_number": "633246616673",
-    "project_id": "twominuteplays"
+    "firebase_url": "https://twominuteplays.firebaseio.com",
+    "project_id": "twominuteplays",
+    "storage_bucket": "twominuteplays.appspot.com"
   },
   "client": [
     {
@@ -19,6 +21,10 @@
             "package_name": "com.twominuteplays",
             "certificate_hash": "C84C5EEF610884F16A5238F4D22DF418BDF8C896"
           }
+        },
+        {
+          "client_id": "633246616673-l9e63990uotsb5rfrbo41ocaaejvvhd5.apps.googleusercontent.com",
+          "client_type": 3
         },
         {
           "client_id": "633246616673-r542muj45cg7bq96qa8cf7o74qa6q536.apps.googleusercontent.com",

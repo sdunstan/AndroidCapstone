@@ -21,6 +21,7 @@ import com.twominuteplays.model.Movie;
 import com.twominuteplays.model.Part;
 import com.twominuteplays.video.FrameGrabber;
 import com.twominuteplays.video.MovieAssemblyService;
+import com.twominuteplays.video.ShareService;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,7 +32,6 @@ public class RecorderActivity extends BaseActivity {
     private Movie movie;
     private Part part;
     private Integer currentLineIndex = null;
-    private String token=null;
 
     private final String TAG = RecorderActivity.class.getName();
     private ImageView recordImageView;
@@ -73,7 +73,7 @@ public class RecorderActivity extends BaseActivity {
 
     @Override
     public void postLoginCreate() {
-        token = mFirebaseRef.getAuth().getToken();
+
     }
 
     @SuppressWarnings("unused")
@@ -95,14 +95,7 @@ public class RecorderActivity extends BaseActivity {
                 button.setText(getResources().getString(R.string.record));
             }
             else {
-                movie = movie.recorded();
-                if (token != null) {
-                    Intent assemblyServiceIntent = new Intent(this, MovieAssemblyService.class);
-                    assemblyServiceIntent.putExtra("movie", movie);
-                    assemblyServiceIntent.putExtra("token", token);
-                    startService(assemblyServiceIntent);
-                }
-                finish();
+                button.setEnabled(false);
             }
         }
     }
@@ -120,6 +113,22 @@ public class RecorderActivity extends BaseActivity {
         public void call(Line line) {
             // TODO: move this off the UI thread
             movie = movie.addVideo(part.getId(), line.getId(), line.getRecordingPath());
+            addImage(line);
+            if(movie.isRecorded()) {
+                // Wait for final line to be saved
+                movie = movie.recorded();
+                Intent assemblyServiceIntent = new Intent(RecorderActivity.this, MovieAssemblyService.class);
+                assemblyServiceIntent.setAction(MovieAssemblyService.ASSEMBLE_MOVIE);
+                assemblyServiceIntent.putExtra("movie", movie);
+                startService(assemblyServiceIntent);
+
+            }
+            if(part.isLastLine(line)) {
+                finish();
+            }
+        }
+
+        private void addImage(Line line) {
             if (movie.getImageUrl() == null) {
                 File pngPath = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "coverart-" + movie.getId() + ".png");
                 if (pngPath != null) {
@@ -133,6 +142,7 @@ public class RecorderActivity extends BaseActivity {
                 }
             }
         }
+
     }
 
 }
