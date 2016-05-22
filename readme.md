@@ -17,12 +17,11 @@ Rules
 1. When you browse movie scripts and tap add, you create a clone of the 
 Movie and become its owner
 1. If you leave the RecorderActivity before recording all the lines:
->1. the next time you enter the RecorderActivity you are taken to the 
-last line not recorded
->1. your progress is saved
+  a. the next time you enter the RecorderActivity you are taken to the last line not recorded
+  b. your progress is saved
 1. When you record all the lines for a part:
->1. you can now share it, as long as you haven't recorded the other part yet.
->1. you can no longer record lines for the part
+  a. you can now share it, as long as you haven't recorded the other part yet.
+  b. you can no longer record lines for the part
 1. If you have recorded a part, the button to record that part becomes disabled.
 1. If you tap a part to record it and you have already recorded the other part, 
 you are warned that this will make the play unsharable.
@@ -34,19 +33,19 @@ Sharing
 1. When you save your movie, you also create a Share. The Share ID is saved with
 the movie. 
 1. The Share contains: 
->1. a share ID
->1. movie template ID
->1. a path back to the movie (moviePath)
->1. the owner's part (blank until you record the first part)
->1. the owner's clip collection with key of lineID and value of clipStorageBucketPath
->1. the contributor's part (blank until you share)
->1. a contributors collection keyed by contributor UID that contains
->>1. the contributor's name (if possible)
->>1. a partClips collection with key of lineID and value of clipStorageBucketPath
+  a. a share ID
+  b. movie template ID
+  c. a path back to the movie (moviePath)
+  d. the owner's part (blank until you record the first part)
+  e. the owner's clip collection with key of lineID and value of clipStorageBucketPath
+  f. the contributor's part (blank until you share)
+  g. a contributors collection keyed by contributor UID that contains
+    i.  the contributor's name (if possible)
+    ii. a partClips collection with key of lineID and value of clipStorageBucketPath
 1. When (before) you share your movie:
->1. Your clips are uploaded 
->1. The contributorsPart is added to the Share object
->1. The owner is no longer able to record the other part.
+ a. Your clips are uploaded 
+ b. The contributorsPart is added to the Share object
+ c. The owner is no longer able to record the other part.
 1. When you record your first part, that part is saved in the share as the 
 ownersPart. The contributorsPart becomes the other one.
 1. The clips storage bucket just contains all the clips.
@@ -74,8 +73,8 @@ Final state is that the owner has a merged copy of the movie in their library fo
 by the moviePath in the Share object.
 1. Only the part available is available to record (button active)
 1. When, the button is pressed:
->1. A copy of the movie is added to the user's movies collection with state CONTRIBUTE
->1. Clips begin to download from the owner
+  a. A copy of the movie is added to the user's movies collection with state CONTRIBUTE
+  b. Clips begin to download from the owner
 1. When all the lines are recorded, the state becomes CONTRIBUTED. If all owner lines have been
 downloaded, merge begins.
 1. When all owner clips have been downloaded, check to see if the lines have been recorded. If so,
