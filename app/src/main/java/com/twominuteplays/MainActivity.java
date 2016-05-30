@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
@@ -18,9 +17,9 @@ import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
 import com.twominuteplays.db.FirebaseStuff;
+import com.twominuteplays.db.ShareUtility;
 import com.twominuteplays.firebase.ClickableMovieTemplateAdapter;
 import com.twominuteplays.model.Movie;
-import com.twominuteplays.video.ShareService;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -70,6 +69,7 @@ public class MainActivity extends BaseActivity {
     public void postLoginCreate() {
         moviesAdapter = new ClickableMovieTemplateAdapter(FirebaseStuff.getMoviesRef());
         recyclerView.setAdapter(moviesAdapter);
+        ShareUtility.registerShareListeners(this);
     }
 
     @Override
@@ -107,24 +107,7 @@ public class MainActivity extends BaseActivity {
         if (movie == null)
             return;
         Log.i(TAG, "Clicked share for " + movie.getTitle());
-        ShareService.startActionShare(this, movie.getParts().get(0));
-        // shareMovie(movie);
-    }
-
-    private void shareMovie(Movie movie) {
-        //        movie.shared();
-
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setType("text/plain");
-        String shareText = String.format("ANDROID BETA ONLY. Congratulations! You've been cast to play a part in %s. Tap this: %s",
-                movie.getTitle(),
-                movie.deepLink());
-//        sharingIntent.putExtra("sms_body", shareText);
-        sharingIntent.putExtra(Intent.EXTRA_STREAM,Uri.parse(movie.deepLink()));
-        sharingIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-        sharingIntent.resolveActivity(getPackageManager());
-        startActivity(Intent.createChooser(sharingIntent,"Share movie using"));
-
+        ShareUtility.shareMovie(this, movie);
     }
 
 }

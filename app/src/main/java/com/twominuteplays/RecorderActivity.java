@@ -16,12 +16,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.twominuteplays.camera.VideoFragment;
+import com.twominuteplays.db.FirebaseStuff;
 import com.twominuteplays.model.Line;
 import com.twominuteplays.model.Movie;
+import com.twominuteplays.model.MovieState;
 import com.twominuteplays.model.Part;
+import com.twominuteplays.services.ShareService;
 import com.twominuteplays.video.FrameGrabber;
-import com.twominuteplays.video.MovieAssemblyService;
-import com.twominuteplays.video.ShareService;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,14 +50,19 @@ public class RecorderActivity extends BaseActivity {
         Intent intent = getIntent();
         movie = intent.getParcelableExtra("MOVIE");
         part = intent.getParcelableExtra("PART");
-        if (movie == null || movie.getState() != Movie.MovieState.RECORDING_STARTED) {
-            Log.e(TAG, "Movie is not in the correct state for this activity.");
+
+        if (movie == null || !(movie.state == MovieState.RECORDING_STARTED || movie.state == MovieState.CONTRIBUTE)) {
+            Log.e(TAG, "Movie is not in the correct state for this activity. " + ((movie == null) ? "no movie" : movie.state.toString()));
             finish();
         }
+
+        currentLineIndex = part.getCurrentLineIndex();
+        Log.i(TAG, "Jumping to line " + currentLineIndex);
+
         new LineAdvancedAction().call(currentLineIndex);
 
         VideoFragment cameraFragment = VideoFragment.newInstance();
-        // when line recorded by cameraFragment, call LineRecordedAction
+        // when a line is recorded by the VideoFragment, it calls LineRecordedAction
         IntentFilter lineRecordedIntentFilter = new IntentFilter(Line.LINE_RECORDED);
         LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
             @Override
@@ -109,23 +115,31 @@ public class RecorderActivity extends BaseActivity {
         }
     }
 
-    public final class LineRecordedAction {
+    private final class LineRecordedAction {
         public void call(Line line) {
             // TODO: move this off the UI thread
+            addImage(line); // this will redefine the movie instance variable but will not save
             movie = movie.addVideo(part.getId(), line.getId(), line.getRecordingPath());
-            addImage(line);
-            if(movie.isRecorded()) {
-                // Wait for final line to be saved
-                movie = movie.recorded();
-                Intent assemblyServiceIntent = new Intent(RecorderActivity.this, MovieAssemblyService.class);
-                assemblyServiceIntent.setAction(MovieAssemblyService.ASSEMBLE_MOVIE);
-                assemblyServiceIntent.putExtra("movie", movie);
-                startService(assemblyServiceIntent);
+            movie.save();
+            Part recordedPart = movie.findPart(part.getId());
+            if (recordedPart.isRecorded()) {
+                if (movie.getState() == MovieState.RECORDING_STARTED) {
+                    movie = movie.state.recorded(movie);
+                }
 
-            }
-            if(part.isLastLine(line)) {
+                if (movie.getState() == MovieState.CONTRIBUTE) {
+                    movie = movie.state.contributed(movie);
+                    // TODO: movie to ShareUtility?
+                    ShareService.saveContributorClipsToGCS(RecorderActivity.this, movie.getShareId(), FirebaseStuff.getUid(), recordedPart);
+                }
                 finish();
             }
+
+            // TODO: circle back around to single user mode.
+//                Intent assemblyServiceIntent = new Intent(RecorderActivity.this, MovieAssemblyService.class);
+//                assemblyServiceIntent.setAction(MovieAssemblyService.ASSEMBLE_MOVIE);
+//                assemblyServiceIntent.putExtra("movie", movie);
+//                startService(assemblyServiceIntent);
         }
 
         private void addImage(Line line) {
@@ -138,6 +152,7 @@ public class RecorderActivity extends BaseActivity {
                             movie = movie.addImageUrl(pngPath.getAbsolutePath());
                         }
                     } catch (FileNotFoundException e) {
+                        Log.e(TAG, "File not found when trying to create and save movie image.");
                     }
                 }
             }

@@ -6,6 +6,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.twominuteplays.BuildConfig;
 import com.twominuteplays.model.Movie;
+import com.twominuteplays.model.Share;
 
 public class FirebaseStuff {
 
@@ -15,14 +16,21 @@ public class FirebaseStuff {
         return FirebaseDatabase.getInstance().getReferenceFromUrl(FIREBASE_URL);
     }
 
-    public static void saveMovie(Movie movie) {
+    public static String getMoviePath(Movie movie) {
         String uid = getUid();
         if (uid == null) {
             throw new IllegalStateException("User must be logged in to save movie.");
         }
-        getFirebase().child("movies/" + uid + "/" + movie.getId()).setValue(movie);
+        return "movies/" + uid + "/" + movie.getId();
     }
 
+    public static void saveMovie(Movie movie) {
+        getFirebase().child(getMoviePath(movie)).setValue(movie);
+    }
+
+    /**
+     * Any objections if I invalidate your login in the case that your login has expired?
+     */
     public static String getUid() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null)
@@ -42,5 +50,15 @@ public class FirebaseStuff {
         if (uid == null)
             return null;
         return getFirebase().child("movies").child(uid);
+    }
+
+    public static DatabaseReference getShareRef(String shareId) {
+        return FirebaseStuff.getFirebase()
+                .child("sharedMovies")
+                .child(shareId);
+    }
+
+    public static void saveShare(Share share) {
+        getShareRef(share.getId().toString()).setValue(share);
     }
 }

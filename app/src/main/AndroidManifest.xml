@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".TwoMinutePlaysApp"
@@ -60,7 +61,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_movie"
             android:screenOrientation="portrait"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:theme="@style/FullscreenTheme" />
         <activity
             android:name=".RecorderActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -79,8 +80,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".video.MovieAssemblyService"
-            android:exported="false"/>
+        <service
+            android:name=".services.MovieAssemblyService"
+            android:exported="false" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -98,7 +100,10 @@
             android:value="@integer/google_play_services_version" />
 
         <service
-            android:name=".video.ShareService"
+            android:name=".services.ShareService"
+            android:exported="false" />
+        <service
+            android:name=".services.ClipDownloadService"
             android:exported="false"></service>
     </application>
 

@@ -9,6 +9,7 @@ or whatever.
 1. Make controls visible after last line in a part is read.
 1. Add help snackbars & toasts
 1. Simplify state machine
+1. MainActivity layout is fckd u
 1. Implement rules
 
 Rules

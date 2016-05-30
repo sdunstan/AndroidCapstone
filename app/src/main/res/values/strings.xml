@@ -14,7 +14,7 @@
     <string name="stop">Stop</string>
     <string name="request_permission">Need permissions fer this</string>
     <string name="picture">Picture</string>
-    <string name="camera_error">Camera error</string>
+    <string name="camera_error">Looks like none of your device\'s cameras are compatible.</string>
     <string name="intro_message">Camera intro message</string>
     <string name="permission_request">PERMISSION REQUEST</string>
     <string name="play_or_pause_toggle_button">Play or pause toggle button.</string>
@@ -37,4 +37,7 @@
     <string name="action_logout">Logout</string>
     <string name="share_this_movie">Share this movie</string>
     <string name="launcher_icon">launcher icon</string>
+    <string name="contributorsNode">contributors</string>
+    <string name="clipsNode">clips</string>
+    <string name="ownersClipsNode">ownersClips</string>
 </resources>

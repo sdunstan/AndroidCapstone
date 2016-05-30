@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.firebase.database.Exclude;
+import com.twominuteplays.db.FirebaseStuff;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,11 +104,14 @@ public class Part implements Parcelable {
 
     @Exclude
     public boolean isRecorded() {
+        boolean recorded = true;
         for (Line line : getLines()) {
-            if (line.getRecordingPath() == null)
-                return false;
+            if (!line.hasMovieClip()) {
+                recorded = false;
+                break;
+            }
         }
-        return true;
+        return recorded;
     }
 
     @Exclude
@@ -118,6 +122,65 @@ public class Part implements Parcelable {
             isLast = lastLine.getId().equals(line.getId());
         }
         return isLast;
+    }
+
+    public Part clonePartForContribute() {
+        return new Builder()
+                .withActorUid(FirebaseStuff.getUid())
+                .withCharacterName(getCharacterName())
+                .withDescription(getDescription())
+                .withId(getId())
+                .withLines(cloneLinesForContribute())
+                .build();
+    }
+
+    public Part cloneOwnerPart() {
+        return new Builder()
+                .withActorUid(getActorUid())
+                .withCharacterName(getCharacterName())
+                .withDescription(getDescription())
+                .withId(getId())
+                .withLines(cloneOwnerLines())
+                .build();
+    }
+
+    private List<Line> cloneOwnerLines() {
+        List<Line> linesClone = new ArrayList<>();
+        for(final Line line : lines) {
+            linesClone.add(line.cloneOwnerLine());
+        }
+        return linesClone;
+    }
+
+    private List<Line> cloneLinesForContribute() {
+        List<Line> linesClone = new ArrayList<>();
+        for(final Line line : lines) {
+            linesClone.add(line.cloneLineForContribute());
+        }
+        return linesClone;
+    }
+
+    @Exclude
+    public Line findLine(String lineId) {
+        for(Line line : lines) {
+            if (line.getId().equals(lineId)) {
+                return line;
+            }
+        }
+        return null;
+    }
+
+    @Exclude
+    public Integer getCurrentLineIndex() {
+        int currentLineIndex = 0;
+        for(Line line : lines) {
+            if(!line.hasMovieClip())
+                break;
+            currentLineIndex++;
+        }
+        if(currentLineIndex >= lines.size())
+            throw new IllegalStateException("All lines have been recorded.");
+        return currentLineIndex;
     }
 
     public static class Builder {

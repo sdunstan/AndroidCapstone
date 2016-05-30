@@ -7,6 +7,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.Map;
 
 public class Line implements Parcelable {
@@ -56,6 +58,31 @@ public class Line implements Parcelable {
         Intent broadcastRecordedIntent = new Intent(LINE_RECORDED);
         broadcastRecordedIntent.putExtra(LINE, this);
         LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastRecordedIntent);
+    }
+
+    public Line cloneLineForContribute() {
+        return new Builder()
+                .withLine(getLine())
+                .withRecordingPath(null)
+                .withSortOrder(getSortOrder())
+                .withId(getId())
+                .withSortOrder(getSortOrder())
+                .build();
+    }
+
+    @Exclude
+    public boolean hasMovieClip() {
+        return (recordingPath != null && !recordingPath.isEmpty());
+    }
+
+    public Line cloneOwnerLine() {
+        return new Builder()
+                .withLine(getLine())
+                .withRecordingPath("-")
+                .withSortOrder(getSortOrder())
+                .withId(getId())
+                .withSortOrder(getSortOrder())
+                .build();
     }
 
     public static class Builder {

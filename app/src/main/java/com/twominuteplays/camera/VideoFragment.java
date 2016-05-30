@@ -36,6 +36,9 @@ import com.twominuteplays.R;
 import com.twominuteplays.model.Line;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -146,6 +149,9 @@ public class VideoFragment extends Fragment implements FragmentCompat.OnRequestP
             if (size.getWidth() == 320 && size.getHeight() == 240) {
                 return size;
             }
+            if (size.getWidth() == 240 && size.getHeight() == 320) {
+                return size;
+            }
         }
         Log.e(TAG, "Couldn't find any suitable video size. using " + choices[choices.length - 1]);
         return choices[choices.length - 1];
@@ -157,30 +163,49 @@ public class VideoFragment extends Fragment implements FragmentCompat.OnRequestP
      * ratio matches with the specified value.
      *
      * @param choices     The list of sizes that the camera supports for the intended output class
-     * @param width       The minimum desired width
-     * @param height      The minimum desired height
+     * @param targetMinWidth       The minimum desired width
+     * @param targetMinHeight      The minimum desired height
      * @param aspectRatio The aspect ratio
      * @return The optimal {@code Size}, or an arbitrary one if none were big enough
      */
-    private static Size chooseOptimalSize(Size[] choices, int width, int height, Size aspectRatio) {
+    private static Size chooseOptimalSize(Size[] choices, int targetMinWidth, int targetMinHeight, Size aspectRatio) {
         // Collect the supported resolutions that are at least as big as the preview Surface
-        List<Size> bigEnough = new ArrayList<Size>();
+        List<Size> matchingAspectRatioSizes = new ArrayList<Size>();
+        List<Size> minimumDensitySizes = new ArrayList<Size>();
         int w = aspectRatio.getWidth();
         int h = aspectRatio.getHeight();
+        MathContext mc = new MathContext(3, RoundingMode.UP);
+        BigDecimal targetAspectRatio = new BigDecimal(h, mc);
+        targetAspectRatio = targetAspectRatio.divide(new BigDecimal(w, mc), mc);
+        int targetMinDensity = targetMinHeight*targetMinWidth;
+        Log.d(TAG, "Target aspect ratio is " + targetAspectRatio + " looking for min of " + targetMinWidth + "x" + targetMinHeight);
         for (Size option : choices) {
-            if (option.getHeight() == option.getWidth() * h / w &&
-                    option.getWidth() >= width && option.getHeight() >= height) {
-                bigEnough.add(option);
+            int density = option.getHeight() * option.getWidth();
+            BigDecimal optionAspectRatio = (new BigDecimal(option.getHeight(), mc))
+                    .divide(new BigDecimal(option.getWidth(), mc), mc);
+            Log.d(TAG, "Found preview size of " + option.toString() + " has a ratio of " + optionAspectRatio);
+            if (targetAspectRatio.equals(optionAspectRatio)) {
+                matchingAspectRatioSizes.add(option);
+                if (density >= targetMinDensity) {
+                    minimumDensitySizes.add(option);
+                }
             }
         }
 
-        // Pick the smallest of those, assuming we found any
-        if (bigEnough.size() > 0) {
-            return Collections.min(bigEnough, new CompareSizesByArea());
-        } else {
-            Log.e(TAG, "Couldn't find any suitable preview size");
-            return choices[0];
+        if (minimumDensitySizes.size() > 0) { // If any match the minimum size requirement, and the aspect ratio requirement, use the smallest
+            Size size = Collections.min(minimumDensitySizes, new CompareSizesByArea());
+            Log.i(TAG, "Using a good match for preview size. " + size.toString());
+            return size;
         }
+        // Otherwise use the largest
+        if (matchingAspectRatioSizes.size() > 0) {
+            Size size = Collections.max(matchingAspectRatioSizes, new CompareSizesByArea());
+            Log.w(TAG, "No preview sizes match the size of the screen, some scaling will occur. " + size.toString());
+            return size;
+        }
+        // Otherwise, use the first one
+        Log.w(TAG, "Couldn't find any suitable preview size. Using " + choices[0].toString());
+        return choices[0];
     }
 
     @Override
@@ -318,6 +343,20 @@ public class VideoFragment extends Fragment implements FragmentCompat.OnRequestP
         return null;
     }
 
+    private String findFallbackCamera(CameraManager manager) throws CameraAccessException {
+        for (String cameraId : manager.getCameraIdList()) {
+            CameraCharacteristics characteristics
+                    = manager.getCameraCharacteristics(cameraId);
+            StreamConfigurationMap map = characteristics.get(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            if (map == null) {
+                continue;
+            }
+            return cameraId;
+        }
+        return null;
+    }
+
     @SuppressWarnings("MissingPermission")
     private void openCamera(int width, int height) {
         if (!hasPermissionsGranted(CameraConstants.VIDEO_PERMISSIONS)) {
@@ -336,8 +375,12 @@ public class VideoFragment extends Fragment implements FragmentCompat.OnRequestP
             }
             String cameraId = findFrontFacingCamera(manager);
             if (cameraId == null) {
+                cameraId = findFallbackCamera(manager);
+            }
+            if (cameraId == null) {
                 ErrorDialog.newInstance(getString(R.string.camera_error))
                         .show(getChildFragmentManager(), CameraConstants.FRAGMENT_DIALOG);
+                return;
             }
 
             // Choose the sizes for camera preview and video recording
@@ -421,7 +464,7 @@ public class VideoFragment extends Fragment implements FragmentCompat.OnRequestP
                 }
             }, mBackgroundHandler);
         } catch (CameraAccessException e) {
-            e.printStackTrace();
+            Log.e(TAG, "The camera is no longer connected or has encountered a fatal error", e);
         }
     }
 

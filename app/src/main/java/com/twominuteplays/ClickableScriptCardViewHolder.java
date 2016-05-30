@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
-import static com.twominuteplays.model.Movie.MovieState.TEMPLATE;
+import static com.twominuteplays.model.MovieState.TEMPLATE;
 
 public class ClickableScriptCardViewHolder extends ScriptCardViewHolder {
     public ClickableScriptCardViewHolder(final View cardView) {
@@ -17,7 +17,7 @@ public class ClickableScriptCardViewHolder extends ScriptCardViewHolder {
                     ctx = view.getContext();
                     Intent intent = new Intent(ctx, PlayViewActivity.class);
                     if (TEMPLATE == movie.getState()) {
-                        movie = movie.select();
+                        movie = movie.state.select(movie);
                     }
                     intent.putExtra("MOVIE", movie);
                     ctx.startActivity(intent);

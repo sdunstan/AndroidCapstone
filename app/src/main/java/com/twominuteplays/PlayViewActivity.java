@@ -18,7 +18,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.twominuteplays.db.FirebaseStuff;
 import com.twominuteplays.model.Movie;
+import com.twominuteplays.model.MovieBuilder;
+import com.twominuteplays.model.MovieState;
 import com.twominuteplays.model.Part;
+import com.twominuteplays.model.Share;
 
 import java.util.Map;
 
@@ -36,19 +39,18 @@ public class PlayViewActivity extends BaseActivity {
         if (movie != null) {
             DatabaseReference movieRef = FirebaseStuff.getMovieRef(movie.getId());
             if (movieRef != null) {
-                loadMovie(movieRef);
+                showLoadingDialog();
+                movieRef.addListenerForSingleValueEvent(new LoadMovieEventListener());
             }
         }
     }
 
-    private void loadMovie(DatabaseReference movieRef) {
+    private void showLoadingDialog() {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Grabbing your movie...");
         progressDialog.setIndeterminate(true);
         progressDialog.setProgress(0);
         progressDialog.show();
-
-        movieRef.addListenerForSingleValueEvent(new LoadMovieEventListener());
     }
 
     @Override
@@ -63,33 +65,33 @@ public class PlayViewActivity extends BaseActivity {
     public void postLoginCreate() {
         if (movie != null) {
             setViewFromMovie();
-        } else {
-            Intent intent = getIntent();
-            Uri data = intent.getData();
-            String path[] = data.getPath().split("/");
-            String uid = null;
-            String movieId = null;
-            if (path.length >= 4 && "play".equals(path[1])) {
-                // got 2mp.tv intent
-                uid = path[2];
-                movieId = path[3];
-            } else if ("twominuteplays".equals(data.getScheme())) {
-                uid = path[1];
-                movieId = path[2];
-            }
-            // TODO: lookup real UID from fake mapping passed in on uid parameter,
-            // as is this is only single user
-            Log.i(TAG, "Grabbing movie for UID/movieID " + uid + " " + movieId);
-            DatabaseReference movieRef = FirebaseStuff.getMovieRef(movieId);
-            Log.i(TAG, "Getting movie for " + movieRef.toString());
-
-            loadMovie(movieRef);
+            return;
         }
+
+        Intent intent = getIntent();
+        Uri data = intent.getData();
+        if (data == null) {
+            Log.i(TAG, "No intent data. PlayView will not be initialized.");
+            return;
+        }
+
+        String path[] = data.getPath().split("/");
+
+        if (path.length <= 0) {
+            Log.i(TAG, "No path information in data part of Uri. PlayView will not be initialized. Data path is " + data.getPath());
+            return;
+        }
+
+        String shareId = path[path.length-1];
+        Log.i(TAG, "Grabbing movie for Share ID " + shareId);
+        DatabaseReference shareRef = FirebaseStuff.getShareRef(shareId);
+        Log.i(TAG, "Getting movie for " + shareRef.toString());
+        shareRef.addListenerForSingleValueEvent(new LoadShareEventListener());
     }
 
     private void configurePartButton(Button button, final Part part) {
         button.setText(part.getCharacterName());
-        if (!part.isRecorded() ) { // TODO: isRecorded is kind of a dumb way to check if the button should be available, use movie state?
+        if (!part.isRecorded() && movie.state.isRecordable()) {
             button.setEnabled(true);
             button.setOnClickListener(
                     new View.OnClickListener() {
@@ -137,14 +139,14 @@ public class PlayViewActivity extends BaseActivity {
         // TODO: other state based view adaptations
         FloatingActionButton playFab = (FloatingActionButton) findViewById(R.id.playMovieFAB);
         assert playFab != null;
-        if (Movie.MovieState.MERGED == movie.getState()) playFab.setVisibility(View.VISIBLE);
+        if (MovieState.MERGED == movie.getState()) playFab.setVisibility(View.VISIBLE);
         else playFab.setVisibility(View.INVISIBLE);
     }
 
     private void onPartClicked(Part part) {
         Intent intent = new Intent(this, RecorderActivity.class);
-        movie = movie.selectPart(part);
-        movie = movie.startRecording();
+        movie = movie.state.selectPart(movie, part);
+        movie = movie.state.startRecording(movie);
         intent.putExtra("MOVIE", movie);
         intent.putExtra("PART", part);
         startActivity(intent);
@@ -156,11 +158,55 @@ public class PlayViewActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    private class LoadMovieEventListener implements ValueEventListener {
+    private class LoadShareEventListener implements ValueEventListener {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            Share share = dataSnapshot.getValue(Share.class);
+            DatabaseReference movieRef = FirebaseStuff.getFirebase().child(share.getOriginalMoviePath());
+            showLoadingDialog();
+            movieRef.addListenerForSingleValueEvent(new LoadMovieForShareEventListener(share));
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            dismissLoadingDialog();
+            Log.e(TAG, "Could not load share. " + databaseError.getMessage(), databaseError.toException());
+            // TODO: show an error an pop to the main view
+        }
+    }
+
+    private class LoadMovieForShareEventListener implements ValueEventListener {
+        private final Share share;
+
+        public LoadMovieForShareEventListener(Share share) {
+            this.share = share;
+        }
+
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             Map<String,Object> jsonSnapshot = (Map<String, Object>) dataSnapshot.getValue();
-            Movie.Builder builder = new Movie.Builder();
+            MovieBuilder builder = new MovieBuilder();
+            movie = builder.withJson(jsonSnapshot).build();
+            Log.i(TAG, "Loaded movie from database. State is " + movie.getState());
+            movie = movie.state.contribute(movie, share);
+            setViewFromMovie();
+            dismissLoadingDialog();
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            dismissLoadingDialog();
+            Log.e(TAG, "Could not load movie. " + databaseError.getMessage(), databaseError.toException());
+            // TODO: show an error an pop to the main view
+        }
+    }
+
+    private class LoadMovieEventListener implements ValueEventListener {
+
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            Map<String,Object> jsonSnapshot = (Map<String, Object>) dataSnapshot.getValue();
+            MovieBuilder builder = new MovieBuilder();
             movie = builder.withJson(jsonSnapshot).build();
             Log.i(TAG, "Loaded movie from database. State is " + movie.getState());
             setViewFromMovie();
@@ -170,6 +216,7 @@ public class PlayViewActivity extends BaseActivity {
         @Override
         public void onCancelled(DatabaseError databaseError) {
             dismissLoadingDialog();
+            Log.e(TAG, "Could not load movie. " + databaseError.getMessage(), databaseError.toException());
             // TODO: show an error an pop to the main view
         }
     }

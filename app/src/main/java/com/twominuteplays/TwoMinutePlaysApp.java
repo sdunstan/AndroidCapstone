@@ -10,6 +10,7 @@ public class TwoMinutePlaysApp extends Application {
     public void onCreate() {
         super.onCreate();
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        FirebaseDatabase.getInstance().setLogLevel(Logger.Level.DEBUG);
+        FirebaseDatabase.getInstance().setLogLevel(Logger.Level.INFO);
     }
+
 }

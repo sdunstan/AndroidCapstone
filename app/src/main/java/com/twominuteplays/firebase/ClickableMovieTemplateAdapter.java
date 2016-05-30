@@ -9,6 +9,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.twominuteplays.ClickableScriptCardViewHolder;
 import com.twominuteplays.R;
 import com.twominuteplays.model.Movie;
+import com.twominuteplays.model.MovieBuilder;
 
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class ClickableMovieTemplateAdapter extends FirebaseRecyclerAdapter<Movie
     @Override
     protected Movie parseSnapshot(DataSnapshot snapshot) {
         Map<String,Object> jsonSnapshot = (Map<String, Object>) snapshot.getValue();
-        Movie.Builder builder = new Movie.Builder();
+        MovieBuilder builder = new MovieBuilder();
         return builder.withJson(jsonSnapshot).build();
     }
 }

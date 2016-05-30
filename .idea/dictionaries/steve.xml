@@ -2,6 +2,7 @@
   <dictionary name="steve">
     <words>
       <w>firebase</w>
+      <w>nextval</w>
     </words>
   </dictionary>
 </component>
