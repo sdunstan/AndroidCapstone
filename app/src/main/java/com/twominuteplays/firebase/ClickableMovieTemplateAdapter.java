@@ -3,6 +3,7 @@ package com.twominuteplays.firebase;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -23,11 +24,22 @@ public class ClickableMovieTemplateAdapter extends FirebaseRecyclerAdapter<Movie
         super(Movie.class, R.layout.script_card, ClickableScriptCardViewHolder.class, moviesRef);
     }
 
+    private void setText(TextView textView, String text) {
+        if (textView != null) {
+            if (text!=null) {
+                textView.setText(text);
+            }
+            else {
+                textView.setText("");
+            }
+        }
+    }
+
     @Override
     protected void populateViewHolder(ClickableScriptCardViewHolder scriptCardViewHolder, final Movie movie, int i) {
         scriptCardViewHolder.movie = movie;
-        scriptCardViewHolder.scriptTitleTextView.setText(movie.getTitle());
-        scriptCardViewHolder.synopsisTextView.setText(movie.getSynopsis());
+        setText(scriptCardViewHolder.scriptTitleTextView, movie.getTitle());
+        setText(scriptCardViewHolder.synopsisTextView, movie.getSynopsis());
         if (movie.getImageUrl() != null) {
             Glide.with(scriptCardViewHolder.scriptImageView.getContext())
                     .load(movie.getImageUrl())
