@@ -132,6 +132,8 @@ public class ShareService extends IntentService {
 
         Log.d(TAG, "Waiting for " + uploadTasks.size() + " upload task(s) to complete.");
         Contributions contributions = new Contributions();
+        contributions.setPartId(part.getId());
+        contributions.setCloned(false);
         for(String lineId : uploadTasks.keySet()) {
             UploadTask task = uploadTasks.get(lineId);
             Tasks.await(task);

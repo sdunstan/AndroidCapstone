@@ -1,5 +1,7 @@
 package com.twominuteplays.firebase;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
@@ -7,9 +9,11 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.twominuteplays.ClickableScriptCardViewHolder;
+import com.twominuteplays.MovieActivity;
 import com.twominuteplays.R;
 import com.twominuteplays.model.Movie;
 import com.twominuteplays.model.MovieBuilder;
+import com.twominuteplays.model.MovieState;
 
 import java.util.Map;
 
@@ -34,15 +38,41 @@ public class ClickableMovieTemplateAdapter extends FirebaseRecyclerAdapter<Movie
                     .load(R.mipmap.card_bg)
                     .into(scriptCardViewHolder.scriptImageView);
         }
-        scriptCardViewHolder.shareButton.setTag(movie);
-        scriptCardViewHolder.shareButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+        if (MovieState.RECORDED == movie.getState()) {
+            scriptCardViewHolder.shareButton.setVisibility(View.VISIBLE);
+            scriptCardViewHolder.shareButton.setTag(movie);
+            scriptCardViewHolder.shareButton.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
                         movie.broadcastShare(view.getContext());
+                        }
                     }
-                }
-        );
+            );
+        }
+        else {
+            scriptCardViewHolder.shareButton.setVisibility(View.INVISIBLE);
+        }
+
+        if (MovieState.MERGED == movie.getState()) {
+            scriptCardViewHolder.playButton.setVisibility(View.VISIBLE);
+            scriptCardViewHolder.playButton.setTag(movie);
+            scriptCardViewHolder.playButton.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Context ctx = view.getContext();
+                            Intent intent = new Intent(ctx, MovieActivity.class);
+                            intent.putExtra("MOVIE", movie);
+                            ctx.startActivity(intent);
+                        }
+                    }
+            );
+        }
+        else {
+            scriptCardViewHolder.playButton.setVisibility(View.INVISIBLE);
+        }
+
     }
 
     @Override

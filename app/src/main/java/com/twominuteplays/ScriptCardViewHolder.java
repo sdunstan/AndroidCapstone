@@ -14,6 +14,7 @@ public class ScriptCardViewHolder extends RecyclerView.ViewHolder {
     public TextView synopsisTextView;
     public ImageView scriptImageView;
     public Button shareButton;
+    public Button playButton;
 
     public ScriptCardViewHolder(final View cardView) {
         super(cardView);
@@ -21,5 +22,6 @@ public class ScriptCardViewHolder extends RecyclerView.ViewHolder {
         synopsisTextView = (TextView) cardView.findViewById(R.id.synopsisTextView);
         scriptImageView = (ImageView) cardView.findViewById(R.id.scriptImageView);
         shareButton = (Button) cardView.findViewById(R.id.shareButton);
+        playButton = (Button) cardView.findViewById(R.id.playButton);
     }
 }

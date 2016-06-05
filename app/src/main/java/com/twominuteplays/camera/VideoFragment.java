@@ -510,38 +510,48 @@ public class VideoFragment extends Fragment implements FragmentCompat.OnRequestP
         mTextureView.setTransform(matrix);
     }
 
+    /**
+     * Where the bulk of the media recorder is configured. Specific state machine rules apply.
+     */
     private void setUpMediaRecorder() throws IOException {
         final Activity activity = getActivity();
         if (null == activity) {
             return;
         }
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         if (mNextVideoAbsolutePath == null || mNextVideoAbsolutePath.isEmpty()) {
             mNextVideoAbsolutePath = getVideoFilePath(getActivity());
         }
-        mMediaRecorder.setOutputFile(mNextVideoAbsolutePath);
-        mMediaRecorder.setVideoEncodingBitRate(10000000);
-        mMediaRecorder.setVideoFrameRate(15);
-        mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
-        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC); // before setOutputFormat, recording parameters or encoders. First.
+        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE); // ditto above
+
+
+        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4); // after setAudio/VideoSource, before prepare
+
+        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264); // after setOutputFormat, before prepare
+        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC); // ditto above
+
+        mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight()); // after setVideoSource, setOutFormat, before prepare
+        mMediaRecorder.setVideoFrameRate(24); // after setVideoSource, setOutFormat, before prepare
+        mMediaRecorder.setOutputFile(mNextVideoAbsolutePath); // after setOutputFormat, before prepare
+        mMediaRecorder.setVideoEncodingBitRate(1228800); // just before prepare (LD == 350Kbps == 35840, SD == 1200 == 1228800)
+
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
         switch (mSensorOrientation) {
             case CameraConstants.SENSOR_ORIENTATION_DEFAULT_DEGREES:
-                mMediaRecorder.setOrientationHint(CameraConstants.DEFAULT_ORIENTATIONS.get(rotation));
+                mMediaRecorder.setOrientationHint(CameraConstants.DEFAULT_ORIENTATIONS.get(rotation)); // before prepare
                 break;
             case CameraConstants.SENSOR_ORIENTATION_INVERSE_DEGREES:
-                mMediaRecorder.setOrientationHint(CameraConstants.INVERSE_ORIENTATIONS.get(rotation));
+                mMediaRecorder.setOrientationHint(CameraConstants.INVERSE_ORIENTATIONS.get(rotation)); // before prepare
                 break;
         }
-        mMediaRecorder.prepare();
+
+        mMediaRecorder.prepare(); // after sources, eccoders, etc., before start()
     }
 
     private String getVideoFilePath(Context context) {
         return context.getExternalFilesDir(null).getAbsolutePath() + "/" + currentLine.getId() + "-" +
-                + System.currentTimeMillis() + ".mp4";
+                + System.currentTimeMillis() + ".mp4"; // TODO: find a better system for naming the clip.
     }
 
     private void startRecordingVideo() {

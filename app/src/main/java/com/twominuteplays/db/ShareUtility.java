@@ -13,6 +13,7 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.twominuteplays.R;
+import com.twominuteplays.exceptions.MappingError;
 import com.twominuteplays.firebase.ShareCounter;
 import com.twominuteplays.model.Contributions;
 import com.twominuteplays.model.Movie;
@@ -226,7 +227,7 @@ public class ShareUtility {
     private static void listenForContributed(final Context context, final Movie movie) {
         if (movie.state != SHARE_CLONED)
             return;
-        DatabaseReference db = FirebaseStuff.getShareRef(movie.getShareId().toString()).child("contributors").child(movie.getContributor()).child("clips");
+        DatabaseReference db = FirebaseStuff.getShareRef(movie.getShareId().toString()).child("contributors").child(movie.getContributor());
         if (db == null) {
             Log.w(TAG, "Movies database reference is null. Cannot add listeners.");
             return;
@@ -236,10 +237,13 @@ public class ShareUtility {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Found contributor contributions for my share clone. Downloading to " + movie.getId());
-                Map<String,Object> value = (Map<String, Object>) dataSnapshot.getValue();
-                Contributions contributions = new Contributions(value);
-                if (contributions != null)
+                try {
+                    Contributions contributions = mapContributions(dataSnapshot.getValue());
                     ClipDownloadService.startActionDownloadClips(context, contributions, movie);
+                } catch (MappingError mappingError) {
+                    Log.e(TAG, "Error mapping contribution: " + mappingError.getMessage(), mappingError);
+                }
+
             }
 
             @Override
@@ -264,9 +268,12 @@ public class ShareUtility {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Found owner contributions for my contributed movie. Downloading to " + contributedMovie.getId());
-                Map<String,Object> value = (Map<String, Object>) dataSnapshot.getValue();
-                Contributions ownerContributions = new Contributions(value);
-                ClipDownloadService.startActionDownloadClips(context, ownerContributions, contributedMovie);
+                try {
+                    Contributions ownerContributions = mapContributions(dataSnapshot.getValue());
+                    ClipDownloadService.startActionDownloadClips(context, ownerContributions, contributedMovie);
+                } catch (MappingError mappingError) {
+                    Log.e(TAG, "Error mapping owner contributions: " + mappingError.getMessage(), mappingError);
+                }
             }
 
             @Override
@@ -318,12 +325,21 @@ public class ShareUtility {
 
     private static void cloneMovieFromShareContributions(DataSnapshot dataSnapshot, final Movie sharedMovie) {
         final String contributorUid = dataSnapshot.getKey();
-        for (DataSnapshot contribSnapshot : dataSnapshot.getChildren()) {
-            Log.i(TAG, "Found possible contributions from " + contributorUid);
-            Map<String,Object> value = (Map<String, Object>) contribSnapshot.getValue();
-            Contributions contributions = new Contributions(value);
-            cloneIt(contribSnapshot, contributorUid, contributions, sharedMovie);
+        try {
+            Contributions contributions = mapContributions(dataSnapshot.getValue());
+            cloneIt(dataSnapshot, contributorUid, contributions, sharedMovie);
+        } catch (MappingError mappingError) {
+            Log.e(TAG, "Mapping error " + mappingError.getMessage(), mappingError);
         }
+//        for (DataSnapshot contribSnapshot : dataSnapshot.getChildren()) {
+//            Log.i(TAG, "Found possible contributions from " + contributorUid);
+//            try {
+//                Contributions contributions = mapContributions(contribSnapshot.getValue());
+//                cloneIt(contribSnapshot, contributorUid, contributions, sharedMovie);
+//            } catch (MappingError mappingError) {
+//                Log.e(TAG, "Mapping error " + mappingError.getMessage(), mappingError);
+//            }
+//        }
     }
 
     private static void cloneIt(DataSnapshot dataSnapshot, final String contributorUid, final Contributions contributions, final Movie sharedMovie) {
@@ -333,14 +349,17 @@ public class ShareUtility {
             dataSnapshot.getRef().runTransaction(new Transaction.Handler() {
                 @Override
                 public Transaction.Result doTransaction(MutableData mutableData) {
-                    Map<String,Object> value = (Map<String, Object>) mutableData.getValue();
-                    Contributions currentValue = new Contributions(value);
-                    Log.d(TAG, "Found candidate for cloning from contributor " + contributorUid);
-                    if (currentValue != null && !currentValue.isCloned()) {
-                        Log.d(TAG, "Contribution has not yet spawned a movie clone. Cloning...");
-                        currentValue.setCloned(true);
-                        mutableData.setValue(currentValue);
-                        return Transaction.success(mutableData);
+                    try {
+                        Contributions currentValue = mapContributions(mutableData.getValue());
+                        Log.d(TAG, "Found candidate for cloning from contributor " + contributorUid);
+                        if (currentValue != null && !currentValue.isCloned()) {
+                            Log.d(TAG, "Contribution has not yet spawned a movie clone. Cloning...");
+                            currentValue.setCloned(true);
+                            mutableData.setValue(currentValue);
+                            return Transaction.success(mutableData);
+                        }
+                    } catch (MappingError mappingError) {
+                        Log.e(TAG, "Error cloning: " + mappingError.getMessage(), mappingError);
                     }
                     return Transaction.abort();
                 }
@@ -350,8 +369,7 @@ public class ShareUtility {
                     Log.i(TAG, "Possible clone begin.");
                     Contributions contributionsCurrentValue = null;
                     try {
-                        Map<String,Object> value = (Map<String, Object>) dataSnapshot.getValue();
-                        contributionsCurrentValue = new Contributions(value);
+                        contributionsCurrentValue = mapContributions(dataSnapshot.getValue());
                     }
                     catch (Throwable t) {
                         Log.w(TAG, "Could not read contributions from data snapshot while cloning shared movie.", t);
@@ -362,6 +380,16 @@ public class ShareUtility {
                 }
             });
         }
+    }
+
+    private static Contributions mapContributions(Object value) throws MappingError {
+        if (value != null && value instanceof Map) {
+            Map<String, Object> map = (Map<String, Object>) value;
+            if (!map.containsKey("cloned"))
+                throw new MappingError("Contributions map must have a cloned property.");
+            return new Contributions(map);
+        }
+        throw new MappingError("Value is not an instance of Map.");
     }
 
 }

@@ -72,7 +72,12 @@ public class Line implements Parcelable {
 
     @Exclude
     public boolean hasMovieClip() {
-        return (recordingPath != null && !recordingPath.isEmpty());
+        return !needsMovieClip();
+    }
+
+    @Exclude
+    public boolean needsMovieClip() {
+        return (recordingPath == null || "-".equals(recordingPath));
     }
 
     public Line cloneOwnerLine() {

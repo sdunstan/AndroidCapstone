@@ -75,10 +75,10 @@ public class ClipDownloadService extends IntentService {
             final Part part = movie.findPart(contributions.getPartId());
             // Downloads the clips one at a time.
             for(Line line : part.getLines()) {
-                if(line.hasMovieClip()) {
-                    Log.i(TAG, "Line " + line.getId() + " already has a downloaded video. Skipping.");
-                    continue;
-                }
+//                if(!line.needsMovieClip()) {
+//                    Log.i(TAG, "Line " + line.getId() + " already has a downloaded video. Skipping.");
+//                    continue;
+//                }
                 File outputFile = new File(getExternalFilesDir(Environment.DIRECTORY_MOVIES),
                         movie.getId() + "-" + line.getId() + ".mp4");
                 downloadClip(outputFile, contributions.getClips().get(line.getId()));

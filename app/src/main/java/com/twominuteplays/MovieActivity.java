@@ -2,8 +2,6 @@ package com.twominuteplays;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
-import android.app.Activity;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
@@ -13,8 +11,9 @@ import android.widget.VideoView;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.twominuteplays.model.Movie;
+import com.twominuteplays.video.SerialMovieViewer;
 
-public class MovieActivity extends Activity {
+public class MovieActivity extends BaseActivity {
     private static final boolean AUTO_HIDE = true;
     private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
     private static final int UI_ANIMATION_DELAY = 300;
@@ -33,6 +32,7 @@ public class MovieActivity extends Activity {
     };
     private View mControlsView;
     private VideoView mVideoView;
+    private VideoView mBufferView;
     private Movie movie;
 
     private final Runnable mShowPart2Runnable = new Runnable() {
@@ -73,6 +73,22 @@ public class MovieActivity extends Activity {
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mVideoView = (VideoView) findViewById(R.id.videoView);
+        mBufferView = (VideoView) findViewById(R.id.bufferView);
+        // Set up the user interaction to manually show or hide the system UI.
+        View.OnClickListener toggleListener =
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        toggle();
+                    }
+                };
+        mVideoView.setOnClickListener(toggleListener);
+        mBufferView.setOnClickListener(toggleListener);
+
+        // Upon interacting with UI controls, delay any scheduled hide()
+        // operations to prevent the jarring behavior of controls going away
+        // while interacting with the UI.
+        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         movie = getIntent().getParcelableExtra("MOVIE");
         if (movie != null && movie.getMovieUrl() != null) {
@@ -80,40 +96,16 @@ public class MovieActivity extends Activity {
                     .putContentName("2MP")
                     .putContentType("Video")
                     .putContentId(movie.getId()));
-            mVideoView.setVideoPath(movie.getMovieUrl());
-            mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mediaPlayer) {
-                    mediaPlayer.start();
-                }
-            });
-//            for(Line line : movie.getParts().get(0).getLines()) {
-//                if (line.getRecordingPath() != null) {
-//                    mVideoView.setVideoPath(line.getRecordingPath());
-//                    mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                        @Override
-//                        public void onPrepared(MediaPlayer mediaPlayer) {
-//                            mediaPlayer.start();
-//                        }
-//                    });
-//                    break;
-//                }
-//            }
+            //MovieViewer movieViewer = new MovieViewer(movie, mVideoView, mBufferView);
+            SerialMovieViewer movieViewer = new SerialMovieViewer(movie, mVideoView);
+            movieViewer.play();
         }
 
+    }
 
-        // Set up the user interaction to manually show or hide the system UI.
-        mVideoView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
+    @Override
+    public void postLoginCreate() {
 
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
     }
 
     @Override
@@ -179,4 +171,5 @@ public class MovieActivity extends Activity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
 }

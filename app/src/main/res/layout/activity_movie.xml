@@ -12,6 +12,14 @@
         android:keepScreenOn="true"
         android:id="@+id/videoView" />
 
+    <VideoView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:keepScreenOn="true"
+        android:id="@+id/bufferView"
+        android:visibility="invisible"/>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

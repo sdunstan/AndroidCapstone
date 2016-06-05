@@ -40,4 +40,7 @@
     <string name="contributorsNode">contributors</string>
     <string name="clipsNode">clips</string>
     <string name="ownersClipsNode">ownersClips</string>
+    <string name="play">play</string>
+    <string name="share">share</string>
+    <string name="play_the_movie">Play the movie.</string>
 </resources>
