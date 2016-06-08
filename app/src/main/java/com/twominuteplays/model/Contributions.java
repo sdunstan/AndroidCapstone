@@ -3,6 +3,9 @@ package com.twominuteplays.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.database.Exclude;
+import com.twominuteplays.exceptions.MappingError;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +33,17 @@ public class Contributions implements Parcelable {
         this.partId             = mapValue(map.get("partId"));
         this.cloned             = Boolean.valueOf(mapValue(map.get("cloned")));
         this.clips              = (Map<String, String>) map.get("clips");
+    }
+
+    @Exclude
+    public static Contributions fromMap(Object value) throws MappingError {
+        if (value != null && value instanceof Map) {
+            Map<String, Object> map = (Map<String, Object>) value;
+            if (!map.containsKey("cloned"))
+                throw new MappingError("Contributions map must have a cloned property.");
+            return new Contributions(map);
+        }
+        throw new MappingError("Value is not an instance of Map.");
     }
 
     private String mapValue(Object value) {

@@ -89,9 +89,20 @@ public class PlayViewActivity extends BaseActivity {
         shareRef.addListenerForSingleValueEvent(new LoadShareEventListener());
     }
 
+    private boolean isNotOwnerPart(Part part) {
+        // TODO: this is a goofy way to figure out if the part is the owner's or not.
+        // Only applies when the movie is shared with me (CONTRIBUTE, CONTRIBUTING)
+        // Better to flag the Part as the owner's when it is created at share time.
+        return !"-".equals(part.getLines().get(0).getRecordingPath());
+    }
+
+    private boolean isNotAlreadyRecorded(Part part) {
+        return (!part.isRecorded()) && movie.state.isRecordable();
+    }
+
     private void configurePartButton(Button button, final Part part) {
         button.setText(part.getCharacterName());
-        if (!part.isRecorded() && movie.state.isRecordable()) {
+        if (isNotOwnerPart(part) && isNotAlreadyRecorded(part)) {
             button.setEnabled(true);
             button.setOnClickListener(
                     new View.OnClickListener() {

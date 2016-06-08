@@ -117,6 +117,7 @@ public class RecorderActivity extends BaseActivity {
 
     private final class LineRecordedAction {
         public void call(Line line) {
+            Log.d(TAG, "Recorded line for movie " + movie.getId() + " line id is " + line.getId());
             // TODO: move this off the UI thread
             addImage(line); // this will redefine the movie instance variable but will not save
             movie = movie.addVideo(part.getId(), line.getId(), line.getRecordingPath());
@@ -136,10 +137,6 @@ public class RecorderActivity extends BaseActivity {
             }
 
             // TODO: circle back around to single user mode.
-//                Intent assemblyServiceIntent = new Intent(RecorderActivity.this, MovieAssemblyService.class);
-//                assemblyServiceIntent.setAction(MovieAssemblyService.ASSEMBLE_MOVIE);
-//                assemblyServiceIntent.putExtra("movie", movie);
-//                startService(assemblyServiceIntent);
         }
 
         private void addImage(Line line) {
