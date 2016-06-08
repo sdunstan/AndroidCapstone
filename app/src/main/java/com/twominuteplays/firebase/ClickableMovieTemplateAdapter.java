@@ -50,7 +50,7 @@ public class ClickableMovieTemplateAdapter extends FirebaseRecyclerAdapter<Movie
                     .load(R.mipmap.card_bg)
                     .into(scriptCardViewHolder.scriptImageView);
         }
-        if (MovieState.RECORDED == movie.getState()) {
+        if (MovieState.RECORDED == movie.getState() || MovieState.SHARED == movie.getState()) {
             scriptCardViewHolder.shareButton.setVisibility(View.VISIBLE);
             scriptCardViewHolder.shareButton.setTag(movie);
             scriptCardViewHolder.shareButton.setOnClickListener(

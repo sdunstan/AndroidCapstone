@@ -16,7 +16,7 @@
     <string name="picture">Picture</string>
     <string name="camera_error">Looks like none of your device\'s cameras are compatible.</string>
     <string name="intro_message">Camera intro message</string>
-    <string name="permission_request">PERMISSION REQUEST</string>
+    <string name="permission_request">Two Minute Plays requires access to the video camera to record your clips.</string>
     <string name="play_or_pause_toggle_button">Play or pause toggle button.</string>
     <string name="recoding_indicator">recoding indicator</string>
     <string name="current_line">Current line</string>

@@ -19,8 +19,8 @@ public class ConfirmationDialog extends DialogFragment {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        requestPermissions(CameraConstants.VIDEO_PERMISSIONS,
-                                CameraConstants.REQUEST_VIDEO_PERMISSIONS);
+                        requestPermissions(CameraHelper.VIDEO_PERMISSIONS,
+                                CameraHelper.REQUEST_VIDEO_PERMISSIONS);
                     }
                 })
                 .setNegativeButton(android.R.string.cancel,
