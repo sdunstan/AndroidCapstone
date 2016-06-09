@@ -150,16 +150,16 @@ public class PlayViewActivity extends BaseActivity {
         // TODO: other state based view adaptations
         FloatingActionButton playFab = (FloatingActionButton) findViewById(R.id.playMovieFAB);
         assert playFab != null;
-        if (MovieState.MERGED == movie.getState()) playFab.setVisibility(View.VISIBLE);
+        if (MovieState.DOWNLOADED == movie.getState()) playFab.setVisibility(View.VISIBLE);
         else playFab.setVisibility(View.INVISIBLE);
     }
 
     private void onPartClicked(Part part) {
-        Intent intent = new Intent(this, RecorderActivity.class);
-        movie = movie.state.selectPart(movie, part);
-        movie = movie.state.startRecording(movie);
-        intent.putExtra("MOVIE", movie);
+        Intent intent = new Intent(this, LineActivity.class);
         intent.putExtra("PART", part);
+        movie = movie.state.selectPart(movie, part);
+        movie = movie.state.startRecording(movie).save();
+        intent.putExtra("MOVIE", movie);
         startActivity(intent);
     }
 

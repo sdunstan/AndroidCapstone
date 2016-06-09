@@ -66,7 +66,7 @@ public class ClickableMovieTemplateAdapter extends FirebaseRecyclerAdapter<Movie
             scriptCardViewHolder.shareButton.setVisibility(View.INVISIBLE);
         }
 
-        if (MovieState.MERGED == movie.getState()) {
+        if (MovieState.DOWNLOADED == movie.getState()) {
             scriptCardViewHolder.playButton.setVisibility(View.VISIBLE);
             scriptCardViewHolder.playButton.setTag(movie);
             scriptCardViewHolder.playButton.setOnClickListener(

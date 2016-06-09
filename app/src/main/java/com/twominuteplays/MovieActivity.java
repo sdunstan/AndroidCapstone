@@ -91,12 +91,11 @@ public class MovieActivity extends BaseActivity {
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
         movie = getIntent().getParcelableExtra("MOVIE");
-        if (movie != null && movie.getMovieUrl() != null) {
+        if (movie != null) {
             Answers.getInstance().logContentView(new ContentViewEvent()
                     .putContentName("2MP")
                     .putContentType("Video")
                     .putContentId(movie.getId()));
-            //MovieViewer movieViewer = new MovieViewer(movie, mVideoView, mBufferView);
             SerialMovieViewer movieViewer = new SerialMovieViewer(movie, mVideoView);
             movieViewer.play();
         }

@@ -7,7 +7,9 @@ import android.widget.VideoView;
 import com.twominuteplays.model.Line;
 import com.twominuteplays.model.Movie;
 
+import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * This class will play a movie's clips given two VideoViews. It will alternate between
@@ -18,7 +20,6 @@ public class SerialMovieViewer {
 
     private final Movie movie;
     private final VideoView view;
-    private Iterator<Line> lines;
 
     public SerialMovieViewer(final Movie movie, final VideoView view) {
         this.movie = movie;
@@ -26,12 +27,17 @@ public class SerialMovieViewer {
     }
 
     public void play() {
-        Iterator<Line> lines = movie.assembleLines().iterator();
+        List<Line> linesList = movie.assembleLines();
+        Log.d(TAG, "Playing lines. Count is " + linesList.size());
+
+        Iterator<Line> lines = linesList.iterator();
 
         view.setOnCompletionListener(new MovieFinishedListener(view, lines));
         view.setOnPreparedListener(new MoviePreparedListener());
         view.setOnErrorListener(new MovieErrorListener());
-        view.setVideoPath(lines.next().getRecordingPath()); // starts up the process.
+        File file = new File(lines.next().getRecordingPath());
+        Log.d(TAG, "Next line is " + file.getAbsolutePath() + " exists? " + file.exists());
+        view.setVideoPath(file.getAbsolutePath()); // starts up the process.
     }
 
     private class MovieFinishedListener implements MediaPlayer.OnCompletionListener {
