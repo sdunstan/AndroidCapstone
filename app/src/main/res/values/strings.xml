@@ -43,4 +43,6 @@
     <string name="play">play</string>
     <string name="share">share</string>
     <string name="play_the_movie">Play the movie.</string>
+    <string name="title_activity_line">Line Recorder</string>
+    <string name="tap_a_line_to_record_it">Tap a line to record it.</string>
 </resources>

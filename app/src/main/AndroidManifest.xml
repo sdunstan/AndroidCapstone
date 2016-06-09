@@ -104,7 +104,16 @@
             android:exported="false" />
         <service
             android:name=".services.ClipDownloadService"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity
+            android:name=".LineActivity"
+            android:label="@string/title_activity_line"
+            android:parentActivityName=".PlayViewActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="PlayViewActivity" />
+        </activity>
     </application>
 
 </manifest>
