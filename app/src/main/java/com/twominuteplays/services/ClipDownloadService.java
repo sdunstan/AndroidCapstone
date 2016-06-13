@@ -27,6 +27,7 @@ public class ClipDownloadService extends IntentService {
 
     private static final String TAG = ClipDownloadService.class.getName();
 
+
     public ClipDownloadService() {
         super("ClipDownloadService");
     }
@@ -101,7 +102,6 @@ public class ClipDownloadService extends IntentService {
         Log.d(TAG, "Downloading " + downloadUrl + " to " + outputFile.getPath());
         boolean ok = false;
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        // TODO: externalize this ref to GCS
         StorageReference clipsStorageReference = storage.getReferenceFromUrl(downloadUrl);
         FileDownloadTask task = clipsStorageReference.getFile(outputFile);
         try {

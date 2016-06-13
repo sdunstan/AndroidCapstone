@@ -36,6 +36,7 @@ android {
 
     buildTypes.each {
         it.buildConfigField 'String', 'FIREBASE_URL', FirebaseUrl
+        it.buildConfigField 'String', 'STORAGE_URL', StorageUrl
     }
 }
 
