@@ -2,6 +2,9 @@
 /.idea/workspace.xml
 /.idea/libraries
 .DS_Store
+
+gradle.properties
+
 # Built application files
 *.apk
 *.ap_
