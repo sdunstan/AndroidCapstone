@@ -2,7 +2,7 @@ Getting Started
 ---------------
 1. Create a Firebase account and import the baseline data.
 2. Create a Firebase bucket to hold the movie clips.
-3. Set the URLs in your gradle project properties file (gradle.properties)
+3. Set the URLs in your gradle project properties file (gradle.properties). You can use the gradle.properties.example file for an example.
 4. Setup Google security from the Firebase console.
 5. Download the google-servcies.json file from firebase and put in the app directory.
 

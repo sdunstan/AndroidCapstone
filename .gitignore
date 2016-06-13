@@ -4,6 +4,7 @@
 .DS_Store
 
 app/google-services.json
+app/fabric.properties
 
 gradle.properties
 
