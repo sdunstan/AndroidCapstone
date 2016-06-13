@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 /local.properties
 /.idea/workspace.xml
+=======
+>>>>>>> master
 /.idea/libraries
 .DS_Store
 
 app/google-services.json
+<<<<<<< HEAD
 app/fabric.properties
+=======
+>>>>>>> master
 
 gradle.properties
 
