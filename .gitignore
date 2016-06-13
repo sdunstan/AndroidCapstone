@@ -1,6 +1,8 @@
 /.idea/libraries
 .DS_Store
 
+app/google-services.json
+
 gradle.properties
 
 # Built application files
