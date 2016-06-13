@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.twominuteplays.BuildConfig;
 import com.twominuteplays.R;
 import com.twominuteplays.db.FirebaseStuff;
 import com.twominuteplays.model.Contributions;
@@ -36,6 +37,7 @@ public class ShareService extends IntentService {
     private static final String EXTRA_CONTRIBUTOR_UID = "com.twominuteplays.video.extra.CONTRIBUTOR_UID";
     private static final String EXTRA_PART = "com.twominuteplays.video.extra.PART";
     private static final String TAG = ShareService.class.getName();
+    private static final String STORAGE_URL = BuildConfig.STORAGE_URL;
 
     public ShareService() {
         super("ShareService");
@@ -118,7 +120,7 @@ public class ShareService extends IntentService {
     private void storeVideo(final DatabaseReference clipDBReference, Part part) throws ExecutionException, InterruptedException {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         // TODO: externalize this ref to GCS
-        StorageReference clipsStorageReference = storage.getReferenceFromUrl("gs://twominuteplays.appspot.com")
+        StorageReference clipsStorageReference = storage.getReferenceFromUrl(STORAGE_URL)
                 .child(getString(R.string.clipsNode));
 
         Map<String, UploadTask> uploadTasks = new HashMap<>();
