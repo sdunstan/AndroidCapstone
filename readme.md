@@ -1,10 +1,10 @@
 Getting Started
 ---------------
-1. Create a Firebase account and import the baseline data.
+1. Create a Firebase account and import the [baseline data](https://github.com/sdunstan/AndroidCapstone/tree/master/firebase-baseline-data).
 2. Create a Firebase bucket to hold the movie clips.
 3. Set the URLs in your gradle project properties file (gradle.properties). You can use the gradle.properties.example file for an example.
-4. Setup Google security from the Firebase console.
-5. Download the google-servcies.json file from firebase and put in the app directory.
+4. Setup Google security from the Firebase console. [a. Add SHA 1 Fingerprint](https://developers.google.com/android/guides/client-auth) b. Add to app settings in console. Note: this app uses Google SSO only.
+5. Download the google-servcies.json file from the firebase console and put in the app directory.
 
 Rules
 -----
