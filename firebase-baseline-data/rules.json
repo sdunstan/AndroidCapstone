@@ -1,0 +1,25 @@
+{
+    "rules": {
+        ".read": false,
+        ".write": false,
+        "movies": {
+          ".read": "auth != null",
+          ".write": false,
+          "$uid": {
+            ".write": "auth != null && auth.uid == $uid"
+          }
+        },
+        "templates": {
+          ".read": "auth != null",
+          ".write": false
+        },
+        "shareCounter": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        },
+        "sharedMovies": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        }
+    }
+}

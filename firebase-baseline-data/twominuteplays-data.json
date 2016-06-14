@@ -1,0 +1,94 @@
+{
+  "shareCounter" : 1029,
+  "templates" : [ {
+    "author" : "Steve",
+    "id" : "1",
+    "parts" : [ {
+      "characterName" : "PAT",
+      "description" : "a camper convinced a witch is afoot",
+      "id" : "1",
+      "lines" : [ {
+        "id" : "L1",
+        "line" : "Did you hear that?",
+        "sortOrder" : 0
+      }, {
+        "id" : "L2",
+        "line" : "No, that creepy cackling sound. It came from over there.",
+        "sortOrder" : 1
+      }, {
+        "id" : "L3",
+        "line" : "I distinctly heard mouth breathing. Kind of like (PANTS LINE A DOG)",
+        "sortOrder" : 2
+      }, {
+        "id" : "L4",
+        "line" : "Yes! That's it. (PAUSES DRAMATICALLY) I'm so scared.",
+        "sortOrder" : 3
+      }, {
+        "id" : "L5",
+        "line" : "Thank you for that. I hope the witch eats you.",
+        "sortOrder" : 4
+      } ]
+    }, {
+      "characterName" : "SAM",
+      "description" : "a nonbeliever",
+      "id" : "2",
+      "lines" : [ {
+        "id" : "L6",
+        "line" : "Sorry, that was me. I just had cabbage.",
+        "sortOrder" : 0
+      }, {
+        "id" : "L7",
+        "line" : "I didn't hear anything.",
+        "sortOrder" : 1
+      }, {
+        "id" : "L8",
+        "line" : "Oh, sorry, yep. I hear it now. It is kind of like (PANTS LIKE A DOG)",
+        "sortOrder" : 2
+      }, {
+        "id" : "L9",
+        "line" : "(WHISPER SLOWLY) Me too. (SAM makes FLATULENT SOUND)",
+        "sortOrder" : 3
+      } ]
+    } ],
+    "scriptMarkup" : "<html><body><p class=\"c0 c2\"><span>THE BLAND WITCH PROJECT</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0\"><span>SETTING: a darkened room or a desolate outdoor area at night</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0\"><span>CHARACTERS:</span></p><p class=\"c0\"><span>PAT, a camper convinced a witch is afoot</span></p><p class=\"c0\"><span>SAM, a nonbeliever</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0 c2\"><span>PAT</span></p><p class=\"c0\"><span>Did you hear that?</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0 c2\"><span>SAM</span></p><p class=\"c0\"><span>Sorry, that was me. I just had cabbage.</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0 c2\"><span>PAT</span></p><p class=\"c0\"><span>No, that creepy cackling sound. It came from over there.</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0 c2\"><span>SAM</span></p><p class=\"c0\"><span>I didn&rsquo;t hear anything.</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0 c2\"><span>PAT</span></p><p class=\"c0\"><span>I distinctly heard mouth breathing. Kind of like (PANTS LIKE A DOG)</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0 c2\"><span>SAM</span></p><p class=\"c0\"><span>Oh, sorry, yep. I hear it now. It is kind of like (PANTS LIKE A DOG)</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0 c2\"><span>PAT</span></p><p class=\"c0\"><span>Yes! That&rsquo;s it. (PAUSES DRAMATICALLY) I&rsquo;m so scared.</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0 c2\"><span>SAM</span></p><p class=\"c0 c2\"><span>(whispering, slowly) </span></p><p class=\"c0\"><span>Me too. (SAM makes FLATULENT SOUND)</span></p><p class=\"c0 c1\"><span></span></p><p class=\"c0 c2\"><span>PAT</span></p><p class=\"c0\"><span>Thank you for that. I hope the witch eats you.</span></p><p class=\"c0 c1\"><span></span></p></body></html>",
+    "synopsis" : "Campers run afowl of a witch. Nobody is going home with all their dignity.",
+    "title" : "The Bland Witch Project"
+  }, {
+    "author" : "Steve",
+    "id" : "2",
+    "parts" : [ {
+      "characterName" : "KNOCKER 1",
+      "description" : "A knock-knock instigator.",
+      "id" : "1",
+      "lines" : [ {
+        "id" : "L1",
+        "line" : "Knock knock",
+        "sortOrder" : 0
+      }, {
+        "id" : "L2",
+        "line" : "Your face.",
+        "sortOrder" : 1
+      }, {
+        "id" : "L3",
+        "line" : "I see your face.",
+        "sortOrder" : 2
+      } ]
+    }, {
+      "characterName" : "KNOCKER 2",
+      "description" : "A knock responder.",
+      "id" : "2",
+      "lines" : [ {
+        "id" : "L4",
+        "line" : "Who's there?",
+        "sortOrder" : 0
+      }, {
+        "id" : "L5",
+        "line" : "My face who?",
+        "sortOrder" : 1
+      } ]
+    } ],
+    "scriptMarkup" : "<html><body> <h1>IT IS A KNOCK KNOCK JOKE</h1> <h2>CHARACTERS:</h2> <p>KNOCKER 1, A knock-knock instigator</p> <p>KNOCKER 2, A knock responder</p> <h3>KNOCKER 1</h3> <p>Knock knock.</p> <h3>KNOCKER 2</h3> <p>Who's there?</p> <h3>KNOCKER 1</h3> <p>Your face.</p> <h3>KNOCKER 2</h3> <p>My face who?</p> <h3>KNOCKER 1</h3> <p>I see your face.</p> </body></html>",
+    "synopsis" : "You knock, I knock. Basically, knock-knock.",
+    "title" : "It is a Knock Knock Joke"
+  } ]
+}
