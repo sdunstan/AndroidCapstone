@@ -1,6 +1,7 @@
 package com.twominuteplays;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.hardware.camera2.CameraManager;
 
@@ -34,6 +35,10 @@ public class TwoMinutePlaysApp extends Application {
 
     public static int getOrientation() {
         return context.getResources().getConfiguration().orientation;
+    }
+
+    public static ContentResolver getApplicationContentResolver() {
+        return context.getContentResolver();
     }
 
 }

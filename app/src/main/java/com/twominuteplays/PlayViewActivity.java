@@ -31,6 +31,7 @@ public class PlayViewActivity extends BaseActivity {
 
     private Movie movie;
     private ProgressDialog progressDialog;
+    private String movieId;
 
     @Override
     protected void onRestart() {
@@ -59,10 +60,21 @@ public class PlayViewActivity extends BaseActivity {
         setContentView(R.layout.activity_play_view);
 
         movie = getIntent().getParcelableExtra("MOVIE");
+        movieId = getIntent().getStringExtra("MOVIE_ID");
     }
 
     @Override
     public void postLoginCreate() {
+        if (movieId != null) {
+            DatabaseReference movieRef = FirebaseStuff.getMovieRef(movieId);
+            if (movieRef != null) {
+                showLoadingDialog();
+                movieRef.addListenerForSingleValueEvent(new LoadMovieEventListener());
+            }
+
+            return;
+        }
+
         if (movie != null) {
             setViewFromMovie();
             return;

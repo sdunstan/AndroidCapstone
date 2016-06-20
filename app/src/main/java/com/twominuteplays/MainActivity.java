@@ -1,9 +1,13 @@
 package com.twominuteplays;
 
+import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
@@ -16,17 +20,18 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
-import com.twominuteplays.db.FirebaseStuff;
 import com.twominuteplays.db.ShareUtility;
-import com.twominuteplays.firebase.ClickableMovieTemplateAdapter;
+import com.twominuteplays.db.sql.MovieContract;
+import com.twominuteplays.db.sql.MovieHelper;
 import com.twominuteplays.model.Movie;
 
 import io.fabric.sdk.android.Fabric;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = MainActivity.class.getName();
-    private ClickableMovieTemplateAdapter moviesAdapter;
+    private static final int MOVIE_LOADER = 31415;
+    private MyMoviesAdapter moviesAdapter;
     private RecyclerView recyclerView;
 
     @Override
@@ -52,6 +57,10 @@ public class MainActivity extends BaseActivity {
 
         recyclerView = (RecyclerView) findViewById(R.id.myScripts);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        moviesAdapter = new MyMoviesAdapter();
+        recyclerView.setAdapter(moviesAdapter);
+
+        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
 
         IntentFilter shareIntentFilter = new IntentFilter(Movie.MOVIE_SHARE);
         LocalBroadcastManager.getInstance(this).registerReceiver(
@@ -67,8 +76,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void postLoginCreate() {
-        moviesAdapter = new ClickableMovieTemplateAdapter(FirebaseStuff.getMoviesRef());
-        recyclerView.setAdapter(moviesAdapter);
         ShareUtility.registerShareListeners(this);
     }
 
@@ -108,6 +115,33 @@ public class MainActivity extends BaseActivity {
             return;
         Log.i(TAG, "Clicked share for " + movie.getTitle());
         ShareUtility.shareMovie(this, movie);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+        if(id == MOVIE_LOADER) {
+            return new CursorLoader(
+                    MainActivity.this,
+                    MovieContract.Movie.MOVIE_URI,
+                    MovieHelper.READ_MOVIE_PROJECTION,
+                    null,
+                    null,
+                    null
+            );
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        moviesAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        moviesAdapter.swapCursor(null);
     }
 
 }

@@ -1,10 +1,14 @@
 package com.twominuteplays.db;
 
+import android.content.ContentValues;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.twominuteplays.BuildConfig;
+import com.twominuteplays.TwoMinutePlaysApp;
+import com.twominuteplays.db.sql.MovieContract;
 import com.twominuteplays.model.Movie;
 import com.twominuteplays.model.Share;
 

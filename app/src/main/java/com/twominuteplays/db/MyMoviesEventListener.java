@@ -6,6 +6,8 @@ import android.util.Log;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.twominuteplays.TwoMinutePlaysApp;
+import com.twominuteplays.db.sql.MovieContract;
 import com.twominuteplays.model.Movie;
 import com.twominuteplays.model.MovieBuilder;
 
@@ -29,6 +31,14 @@ class MyMoviesEventListener implements ChildEventListener {
         Map<String,Object> jsonSnapshot = (Map<String, Object>) dataSnapshot.getValue();
         MovieBuilder builder = new MovieBuilder();
         Movie movie = builder.withJson(jsonSnapshot).build();
+        // Save to local database!
+        try {
+            TwoMinutePlaysApp.getApplicationContentResolver()
+                    .insert(MovieContract.Movie.MOVIE_URI,
+                            movie.populateContentValues());
+        }
+        catch (android.database.SQLException e) {
+        }
 
         if (movie != null) {
             Log.d(TAG, "Listening for changes to my added movie " + movie.getId());
@@ -43,6 +53,12 @@ class MyMoviesEventListener implements ChildEventListener {
         MovieBuilder builder = new MovieBuilder();
         Movie movie = builder.withJson(jsonSnapshot).build();
 
+        TwoMinutePlaysApp.getApplicationContentResolver()
+                .update(MovieContract.Movie.MOVIE_URI,
+                        movie.populateContentValues(),
+                        MovieContract.Movie.COLUMN_NAME_MOVIE_ID + "=?",
+                        new String[]{movie.getId()});
+
         if (movie != null) {
             Log.d(TAG, "Listening for changes to my modified movie " + movie.getId());
             onMovieChange(context, movie);
@@ -54,6 +70,11 @@ class MyMoviesEventListener implements ChildEventListener {
         Map<String,Object> jsonSnapshot = (Map<String, Object>) dataSnapshot.getValue();
         MovieBuilder builder = new MovieBuilder();
         Movie movie = builder.withJson(jsonSnapshot).build();
+
+        TwoMinutePlaysApp.getApplicationContentResolver()
+                .delete(MovieContract.Movie.MOVIE_URI,
+                        MovieContract.Movie.COLUMN_NAME_MOVIE_ID + "=?",
+                        new String[]{movie.getId()});
 
         Log.d(TAG, "Removing movie " + movie.getId());
     }

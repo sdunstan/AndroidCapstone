@@ -70,7 +70,7 @@ public enum MovieState {
 
     public Movie selectPart(final Movie movie, final Part thePart) {
         if (!(MovieState.SELECTED == movie.getState() || MovieState.RECORDING_STARTED == movie.getState() || MovieState.CONTRIBUTE == movie.getState()))
-            throw new IllegalStateException("Movie state must be SELECTED, RECORDING STARTED, or RECORDED to select part. Is " + movie.getState());
+            throw new IllegalStateException("Movie state must be SELECTED, RECORDING STARTED, or RECORDED to query part. Is " + movie.getState());
         Part selectedPart = (new Part.Builder())
                 .withActorUid(FirebaseStuff.getUid())
                 .withDescription(thePart.getDescription())
@@ -136,7 +136,7 @@ public enum MovieState {
 
     public Movie select(final Movie movie) {
         if (TEMPLATE != movie.getState())
-            throw new IllegalStateException("Movie state must be TEMPLATE to select.");
+            throw new IllegalStateException("Movie state must be TEMPLATE to query.");
         Movie selectedMovie = (new MovieBuilder())
                 .withId(UUID.randomUUID().toString())
                 .withTemplateId(movie.getId())
@@ -151,6 +151,7 @@ public enum MovieState {
                 .withMovieUrl(movie.getMovieUrl())
                 .withParts(movie.getParts())
                 .build();
+
         return selectedMovie.save();
     }
 
@@ -193,7 +194,7 @@ public enum MovieState {
     }
 
     public Movie share(Long shareId, Movie movie) {
-        if (RECORDED != movie.getState())
+        if (!(SHARED == movie.getState() || RECORDED == movie.getState()))
             throw new IllegalStateException("Movie state must be RECORDED to share the movie.");
         // Also, this movie must have only one part recorded (do a check for this?)
 

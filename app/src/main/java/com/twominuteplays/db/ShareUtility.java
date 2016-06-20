@@ -9,6 +9,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.twominuteplays.firebase.ShareCounter;
 import com.twominuteplays.model.Movie;
+import com.twominuteplays.model.MovieState;
 import com.twominuteplays.model.Part;
 import com.twominuteplays.model.Share;
 import com.twominuteplays.services.ShareService;
@@ -38,9 +39,13 @@ public class ShareUtility {
         return instance;
     }
 
+    private static boolean isSharableState(final Movie movie) {
+        return MovieState.SHARED == movie.getState() || RECORDED == movie.getState();
+    }
+
     public static void shareMovie(final Context context, final Movie movie) {
         final Part ownersPart = movie.findExclusiveRecordedPart();
-        if (ownersPart == null || RECORDED != movie.getState()) {
+        if (ownersPart == null || !isSharableState(movie)) {
             Log.e(TAG, "Movie must have exactly one part recorded.");
             throw new IllegalStateException("Movie must have exactly one part recorded.");
         }

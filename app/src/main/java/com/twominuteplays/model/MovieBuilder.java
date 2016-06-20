@@ -16,6 +16,7 @@ public class MovieBuilder {
     private String movieUrl;
     private Long shareId;
     private String contributor;
+    private boolean localFlag = false;
 
     public MovieBuilder withJson(Map<String, Object> jsonSnapshot) {
         this.id = (String)jsonSnapshot.get("id");
@@ -29,6 +30,7 @@ public class MovieBuilder {
         this.imageUrl = (String)jsonSnapshot.get("imageUrl");
         this.movieUrl = (String)jsonSnapshot.get("movieUrl");
         this.shareId = (Long) jsonSnapshot.get("shareId");
+        this.localFlag = false;
         marshalParts(jsonSnapshot);
 
         return this;
@@ -109,7 +111,7 @@ public class MovieBuilder {
     }
 
     public Movie build() {
-        return new Movie(id, templateId, shareId, contributor, movieState, title, synopsis, author, scriptMarkup, imageUrl, movieUrl, getParts());
+        return new Movie(id, templateId, shareId, contributor, movieState, title, synopsis, author, scriptMarkup, imageUrl, movieUrl, localFlag, getParts());
     }
 
     public MovieBuilder withMovieUrl(String movieUrl) {
@@ -124,6 +126,11 @@ public class MovieBuilder {
 
     public MovieBuilder withContributor(String contributorKey) {
         this.contributor = contributorKey;
+        return this;
+    }
+
+    public MovieBuilder withLocalFlag(boolean local) {
+        this.localFlag = local;
         return this;
     }
 }

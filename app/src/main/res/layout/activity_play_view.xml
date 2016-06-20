@@ -35,7 +35,6 @@
             android:layout_centerHorizontal="true"
             android:textAlignment="center"
             android:textColor="@color/colorPrimaryLight"
-            android:layout_alignParentLeft="false"
             android:fontFamily="@string/titleFontFamily" />
 
         <TextView
@@ -120,8 +119,10 @@
             android:scrollbars="vertical"
             android:scrollIndicators="right|end"
             android:paddingLeft="12dp"
+            android:paddingStart="12dp"
             android:paddingTop="36dp"
             android:paddingRight="12dp"
+            android:paddingEnd="12dp"
             android:paddingBottom="6dp" />
     </android.support.v4.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>

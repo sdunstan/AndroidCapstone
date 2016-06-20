@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <uses-feature android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
@@ -81,10 +81,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".services.MovieAssemblyService"
-            android:exported="false" />
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="cb87183c130bcff08a9435127a6134760e72a04b" />
@@ -114,6 +110,28 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="PlayViewActivity" />
+        </activity>
+
+        <provider
+            android:name=".db.sql.MovieContentProvider"
+            android:authorities="com.twominuteplays.movie"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver android:name=".MyMovieWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/my_movie_widget_info" />
+        </receiver>
+
+        <activity android:name=".MyMovieWidgetConfigureActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
         </activity>
     </application>
 

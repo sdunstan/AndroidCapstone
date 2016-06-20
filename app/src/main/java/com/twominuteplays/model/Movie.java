@@ -1,5 +1,6 @@
 package com.twominuteplays.model;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Parcel;
@@ -9,6 +10,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.firebase.database.Exclude;
 import com.twominuteplays.db.FirebaseStuff;
+import com.twominuteplays.db.sql.MovieContract;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +31,7 @@ public final class Movie implements Parcelable {
     private final String scriptMarkup;
     private final String imageUrl;
     private final String movieUrl;
+    private final boolean localFlag;
     private final List<Part> parts;
 
     public static final Parcelable.Creator<Movie> CREATOR =
@@ -44,6 +47,7 @@ public final class Movie implements Parcelable {
                     return new Movie[size];
                 }
             };
+    private boolean local;
 
     Movie(String id,
                   String templateId,
@@ -56,6 +60,7 @@ public final class Movie implements Parcelable {
                   String scriptMarkup,
                   String imageUrl,
                   String movieUrl,
+                  boolean localFlag,
                   List<Part> parts) {
         this.id = id;
         this.templateId = templateId;
@@ -68,6 +73,7 @@ public final class Movie implements Parcelable {
         this.scriptMarkup = scriptMarkup;
         this.imageUrl = imageUrl;
         this.movieUrl = movieUrl;
+        this.localFlag = localFlag;
         if (parts != null) {
             this.parts = Collections.unmodifiableList(parts);
         }
@@ -89,6 +95,7 @@ public final class Movie implements Parcelable {
         this.scriptMarkup = in.readString();
         this.imageUrl = in.readString();
         this.movieUrl = in.readString();
+        this.localFlag = in.readInt() == 0 ? false : true;
         List<Part> partsPrototype = new ArrayList<>();
         in.readList(partsPrototype, this.getClass().getClassLoader());
         this.parts = Collections.unmodifiableList(partsPrototype);
@@ -153,6 +160,7 @@ public final class Movie implements Parcelable {
         parcel.writeString(scriptMarkup);
         parcel.writeString(imageUrl);
         parcel.writeString(movieUrl);
+        parcel.writeInt(localFlag?1:0);
         parcel.writeList(parts);
     }
 
@@ -287,5 +295,27 @@ public final class Movie implements Parcelable {
         return null;
     }
 
+    @Exclude
+    public ContentValues populateContentValues() {
+        ContentValues contentValues = new ContentValues();
 
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_MOVIE_ID, getId());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_SHARE_ID, getShareId());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_CONTRIBUTOR, getContributor());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_TEMPLATE_ID, getTemplateId());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_STATE, getState().name());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_TITLE, getTitle());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_SYNOPSIS, getSynopsis());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_AUTHOR, getAuthor());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_SCRIPT_MARKUP, getScriptMarkup());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_IMAGE_URL, getImageUrl());
+        contentValues.put(MovieContract.Movie.COLUMN_NAME_MOVIE_URL, getMovieUrl());
+
+        return contentValues;
+    }
+
+    @Exclude
+    public boolean isLocal() {
+        return localFlag;
+    }
 }
